@@ -1,0 +1,9 @@
+name: picts_gif
+
+channels:
+  - conda-forge
+  
+
+dependencies:
+  - python=3.9
+  
