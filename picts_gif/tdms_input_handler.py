@@ -8,8 +8,9 @@ class TdmsInputHandler:
     '''
     def __init__(self):
         pass
-
-    def read_transients(path,  data_group_name = 'Measured Data',  set_timetrack = True,  sep='.'):
+    
+    @staticmethod
+    def read_transients(path,  data_group_name = 'Measured Data',  set_timetrack = True):
         '''
          This method transforms a TDMS file into a data frame.
          Dataframe containing current transients with time as index and temperature as columns
@@ -25,8 +26,7 @@ class TdmsInputHandler:
         whether to drop all rows where there is at least one NaN. Useful for faulty dataset where there are some columns with more data than others
          - set_timetrack: 
         whether to get the timetrack from the files. In some corrupted data it is better to avoid it
-         - sep: 
-        string indicating decimal separator for temperature values in case it is not the standard dot.\n
+    
 
          ......................................................
          The output file is a dataframe in wich are stored current transient in function of temperature. 
@@ -37,7 +37,7 @@ class TdmsInputHandler:
         df = tdms_file[data_group_name].as_dataframe()   
 
          # Temperature values
-        if sep != '.': df.columns = [temp.replace(sep, '.') for temp in df.columns] 
+      
         df.columns = [float(temp.replace('wf_','')) for temp in df.columns]
         df.columns.name = 'Temperature (K)'
 
