@@ -105,7 +105,7 @@ class TdmsInputHandler:
             - df: 
                 dataframe
         '''
-        if temperature < 0   raise ValueError('In set_zero_at_trigger: Not appropiate value.')
+        if temperature < 0:   raise ValueError('In set_zero_at_trigger: Not appropiate value.')
         df.index -= df[temperature].diff().idxmin()
         return df 
 
@@ -132,6 +132,13 @@ class TdmsInputHandler:
         tr_norm = (df-i_inf)/(i_0-i_inf)
         return tr_norm
 
-    
 
 
+    def picts_spectra(df):
+        '''
+        restituisce la collezione spettro picts
+        '''
+        pass 
+
+
+# TODO risistemare InputHandler che gestisca anche altri tipi di input. Separare preprocessamento dei dati in un' altra classe
