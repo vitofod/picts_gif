@@ -114,7 +114,8 @@ def calculate_en (t1, t2):
   
     en = np.array([])
     for t1, t2 in zip(t1,t2):
-        en_guess = 1/(t2-t1)*(t2/t1)    # As a guess we use this, which seems to work well (totally empiric, 1/(t2-t1) alone sometimes does not work). 
+        en_guess = 1/(t2-t1)*(t2/t1)    
+        # As a guess we use this, which seems to work well (totally empiric, 1/(t2-t1) alone sometimes does not work). 
         #The problem is we need to choose a starting point that is closer to our searched value than to 0, 
         # otherwise the function will return the 0 value as result.
         # We use the root function from scipy.optimize to numerically solve
@@ -189,3 +190,4 @@ def picts_2gates (tr, beta, t_avg, t1_min=None,
     gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a rate window
     
     return picts, gates
+

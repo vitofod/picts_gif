@@ -1,4 +1,5 @@
 from nptdms import TdmsFile
+import pandas as pd
 
 
 
@@ -52,7 +53,19 @@ class InputHandler:
         df.index-=trigger
         return df
 
-    def read_transient_from_pkl(path):
+    def read_transients_from_pkl(path):
+         '''
+         This method transforms a.pkl into a data frame.
+         Dataframe containing current transients with time as index and temperature as columns
+  
+         .....................................................
+
+         The input parameters are:
+         - path: 
+        string with file path of TDMS file
+         ......................................................
+         The output file is a dataframe in wich are stored current transient in function of temperature. 
+        '''
          if '.pkl' in path: 
             return pd.read_pickle(path,'bz2')  
    

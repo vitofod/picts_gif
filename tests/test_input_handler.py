@@ -37,6 +37,16 @@ class TestInputHandler:
 
         # with pytest.raises(Exception):
         TdmsInputHandler.read_transients_from_tdms(test_file_path, 'Measured Data', set_timetrack=True)
+
+     # Il file viene letto corretteamente e non ci sono problemi
+    def test_read_transient_from_pkl(self):
+        # ottengo in il path relativo del file, indipendentemente da dove è installato il progetto il software
+        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+
+        df = TdmsInputHandler.read_transients_from_pkl(test_file_path)
+
+        assert isinstance(df, pd.DataFrame)
+        assert not df.empty
     
 
    
