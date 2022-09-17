@@ -7,7 +7,7 @@ from matplotlib.animation import FuncAnimation
 from picts_gif.input_handler import InputHandler
 
 class PictsSpectrumPlot:
-    def __init__(self, ax, df, interval = 10):
+    def __init__(self, ax, df, interval = 0.1): #interval = delay between frames
         self.ax = ax
         self.ax.set_title("Picts Spectrum")
         self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval)

@@ -40,23 +40,10 @@ def optimize_dataframe(df, dropna=False, drop=None):
         if drop is not None: df = df.drop(axis=1, columns = df.columns[drop[0]:drop[1]]) 
         return df
 
-def set_zero_at_trigger(df, temperature):
-        '''
-        This method set the zero of the reference frame when led off.
-        ...............................................................
-
-        Input
-            - df: 
-                dataframe
-            - temperature: 
-                the float index temperature where take trigger values
-        Output
-            - df: 
-                dataframe
-        '''
-        if temperature < 0:   raise ValueError('In set_zero_at_trigger: Not appropiate value.')
-        df.index -= df[temperature].diff().idxmin()
-        return df 
+def set_zero_at_trigger(tdms_file):
+    trigger = tdms_file['Measured Data'].channels()[0].properties['wf_trigger_offset']    # LV program sves in wf_trigger_offset the time of the LED triger
+    df.index-=trigger
+    return df
 
 def normalized_transient(df, i_dark_range, i_light_range):
     '''

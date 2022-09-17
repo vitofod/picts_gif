@@ -51,7 +51,7 @@ class InputHandler:
         # Set t=0 on trigger
         trigger = tdms_file[data_group_name].channels()[0].properties['wf_trigger_offset']    # LV program sves in wf_trigger_offset the time of the LED triger
         df.index-=trigger
-        return df
+        return -df
 
     def read_transients_from_pkl(path):
          '''
