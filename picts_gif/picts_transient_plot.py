@@ -8,7 +8,7 @@ from picts_gif.input_handler import InputHandler
 from picts_gif import preprocessing
 
 class PictsTransientPlot:
-    def __init__(self, ax, df, interval = 0.01): #interval = delay between frames
+    def __init__(self, ax, df, interval = 0.01): #interval = delay between frames in ms
         self.ax = ax
         self.ax.set_title(f"Temperature: -" )
         self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval)

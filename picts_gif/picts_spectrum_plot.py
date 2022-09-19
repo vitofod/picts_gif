@@ -48,8 +48,10 @@ class PictsSpectrumPlot:
 
         self.point_index += 1
 
-        print(f"frame: {frame} - column: {self.current_column} - point: {self.point_index} y size: {len(column_data_y)}")
-
+        try:
+            print(f"frame: {frame} - column: {self.current_column} - point: {self.point_index} y size: {len(column_data_y)} - y_value: {column_data_y.iloc[-1]}")
+        except Exception as e:
+            pass
         
         #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
         #ax.set_xlim(0, frame/10)
@@ -58,12 +60,16 @@ class PictsSpectrumPlot:
 
 if __name__ == "__main__":
     
-    data = InputHandler.read_transients_from_pkl("/home/vito/picts_gif/tests/test_data/test.pkl")
+    path = '/home/vito/picts_gif/tests/test_data/data.tdms'
+    dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
+    #data = InputHandler.read_transients_from_pkl("/home/vito/picts_gif/tests/test_data/test.pkl")
+    data = InputHandler.read_transients_from_tdms(path)
+    transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, dic_path)
     
     print(data.shape)
 
     # print(data[819.900].iloc[0:5])
     # 1 Definire la figura e gli assi
     fig, ax = plt.subplots(1,1)
-    hp = PictsSpectrumPlot(ax=ax, df=data)
+    hp = PictsSpectrumPlot(ax=ax, df=picts)
     plt.show()
