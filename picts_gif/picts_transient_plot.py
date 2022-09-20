@@ -22,8 +22,8 @@ class PictsTransientPlot:
 
     def ani_init(self): 
         # get max of df
-        self.ax.set_xlim(self.df.index.min(), self.df.index.max())
-        self.ax.set_ylim(0, 0.5e-9)
+        self.ax.set_xlim(-0.01, 0.01)
+        self.ax.set_ylim(-0.05, 0.5)
         return self.lines
 
     def ani_update(self, frame):
@@ -57,16 +57,11 @@ class PictsTransientPlot:
 if __name__ == "__main__":
     
     data = InputHandler.read_transients_from_tdms("/home/vito/picts_gif/tests/test_data/data.tdms")
-    data = preprocessing.set_amplifier_gain(data, 1e9)
-    print(data.shape)
-    print(data.head())
-    print(data.columns.names)
+    transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, "/home/vito/picts_gif/tests/test_data/dictionary.json")
     
-    #data = preprocessing.set_zero_at_trigger(data, data.columns) non serve proprio questa funzione
     
     fig, ax = plt.subplots(1,1)
-    hp = PictsTransientPlot(ax=ax, df=data)
-    set
+    hp = PictsTransientPlot(ax=ax, df=transient)
     plt.show()
 
 
