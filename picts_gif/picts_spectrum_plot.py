@@ -7,7 +7,7 @@ from matplotlib.animation import FuncAnimation
 from picts_gif.input_handler import InputHandler
 
 class PictsSpectrumPlot:
-    def __init__(self, ax, df, interval = 0.01): #interval = delay between frames
+    def __init__(self, fig, ax, df, interval = 0.01): #interval = delay between frames
         self.ax = ax
         self.ax.set_title("Picts Spectrum")
         self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval)
@@ -66,10 +66,4 @@ if __name__ == "__main__":
     data = InputHandler.read_transients_from_tdms(path)
     transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, dic_path)
     
-    print(data.shape)
-
-    # print(data[819.900].iloc[0:5])
-    # 1 Definire la figura e gli assi
-    fig, ax = plt.subplots(1,1)
-    hp = PictsSpectrumPlot(ax=ax, df=picts)
-    plt.show()
+  

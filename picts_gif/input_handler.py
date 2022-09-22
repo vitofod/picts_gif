@@ -52,6 +52,7 @@ class InputHandler:
         data.index -= trigger
         return -data
 
+    @staticmethod
     def read_transients_from_pkl(path):
          '''
          This method transforms a.pkl into a data frame.
@@ -69,17 +70,17 @@ class InputHandler:
             return pd.read_pickle(path,'bz2')   
 
 
-
+    @staticmethod
     def from_transient_to_PICTS_spectrum (data, configuration_path):
         '''
-         This method transforms the raw data input from 'read_transient_from_*' into a dataframe containing the PICTS spectrum.
+         This method transforms the raw dataframe input from 'read_transient_from_*' into a dataframe containing the PICTS spectrum.
          Dataframe have temperature as index and rate window as columns
   
          .....................................................
 
          The input parameters are:
          - data: 
-            dataframe to analyze 
+            dataframe to analyze    
          - parameters_path:
             path to a json file with all needed information to analyze the input data
         
@@ -104,15 +105,12 @@ class InputHandler:
         # If the data is corrupted, set zero from the configuration file. 
         if configuration['set_zero'] != 'auto':
             value = configuration['set_zero']
-            print(value)
-            print(transient[value].diff().idxmin())
+            #print(value)
+            #print(transient[value].diff().idxmin())
             transient.index -= transient[value].diff().idxmin() #the zero is positioned exactly in 
                                                                                     #the minimum of the derivative 
                                                                                     # (this is due to the shape of the signal)
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(1,1)
-        transient.iloc[:,50:51].plot(ax=ax)
-        plt.title("transient")
+        
 
         #normalized the current transient
         #recover the values ​​of the dark current
@@ -122,11 +120,11 @@ class InputHandler:
         #the value of the light and dark currents are the averages of the values ​​of the currents in the assigned ranges
         i_light = transient.loc[i_light_range[0]:i_light_range[1]].mean()
         i_dark = transient.loc[i_dark_range[0]:i_dark_range[1]].mean()
-        print(i_light, i_dark)
+       # print(i_light, i_dark)
        # if i_light.iloc[0:1] < i_dark.iloc[0:1]:  raise ValueError('In normalized_transient: i_light smaller than i_dark.')
         transient_norm = (transient-i_dark)/(i_light-i_dark)
         transient_norm.iloc[:,50:51].plot()
-        plt.title("transient_norm")
+       # plt.title("transient_norm")
 
         #I calculate the values ​​of t1
         t1 = preprocessing.create_t1_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'])
@@ -156,14 +154,6 @@ class InputHandler:
         picts.columns.name = 'Rate Window (Hz)'
         gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a rate window
 
-        import matplotlib.pyplot as plt
-       # fig, ax = plt.subplots(1,1)
-        #transient_norm.iloc[:,50:51].plot(ax=ax)
-        #transient.iloc[:,50:51].plot()
-        #picts.iloc[:,0:1].plot()
-        plt.show()
-
-       
         
         return transient_norm, picts, gates
 
