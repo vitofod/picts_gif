@@ -34,14 +34,11 @@ class PictsTransientPlot:
 
         self.gate_index += 1
         gate = self.gates_list[self.gate_index]
-        print("Current gate:", gate, "self.gate_index", self.gate_index)
+        #print("Current gate:", gate, "self.gate_index", self.gate_index)
 
         self.current_column = self.transient_df.columns[self.column_index]
         self.ax.axvline(x = gate[0], label = f't1 - {round(gate[0], 2)}', color=self.colors[self.gate_index], linestyle="dashed")
         self.ax.axvline(x = gate[1], label = f't2 - {round(gate[1], 2)}', color=self.colors[self.gate_index], linestyle="dashed")
-        
-        
-        
 
         column_name = self.transient_df.columns[self.column_index]
 
@@ -88,7 +85,7 @@ class PictsTransientPlot:
 
         # handle scatter points
         gate = self.gates_list[self.gate_index] # x1 e x2, corrispondono al gate i-esimo, che non cambia per tutta la durata dell'animazione
-        indexes = transient.index.get_indexer(gate, method = 'backfill') # si accede ai corrispondenti indici della colonna Time
+        indexes = self.transient_df.index.get_indexer(gate, method = 'backfill') # si accede ai corrispondenti indici della colonna Time
         ys = column_data_y.iloc[indexes] # si usano questi due indici, per accede ai due valori corrispenti nella colonna column_data_y (che cambia ad ogni frame)
 
         if self.scatter is not None:
@@ -115,7 +112,7 @@ class PictsTransientPlot:
         return self.lines
             
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     
     data = InputHandler.read_transients_from_tdms("/home/vito/picts_gif/tests/test_data/data.tdms")
     transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, "/home/vito/picts_gif/tests/test_data/dictionary.json")
@@ -125,7 +122,7 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots(1,1)
     hp = PictsTransientPlot(fig=fig, ax=ax, transient_df=transient, gates_list=gates)
-    plt.show()
+    plt.show() """
 
     #print(gates)
     #y_index = transient.columns.get_indexer([temp], method = 'backfill')[0] for temp in transient.columns[0]])

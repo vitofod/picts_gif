@@ -82,7 +82,8 @@ def set_current_value(data, gain):
     '''
     # set the correct value of the current. 
     #check amplifier_gain > 0
-    if gain < 0:  raise ValueError('In set_amplifier_gain: Not appropiate value.')
+    if gain <= 0:  raise ValueError('In set_amplifier_gain: Not appropiate value.')
+    if not isinstance(gain, float): raise TypeError('In set_amplifier_gain: Not a number.')
     transient = data/gain 
     return transient 
 
@@ -107,11 +108,36 @@ def check_and_fix_trigger_value_if_corrupted(data, trigger_value):
     '''
     #It is possible that the trigger data that sets the zero of the transient is corrupted. 
     # If the data is corrupted, set zero from the configuration file. 
+
     if trigger_value != 'auto':
         data.index -= data[trigger_value].diff().idxmin() #the zero is positioned exactly in 
-                                                                    #the minimum of the derivative 
-                                                                    # (this is due to the shape of the signal)
+                                                          #the minimum of the derivative 
+                                                          # (this is due to the shape of the signal)
     return data 
+
+def trim_dataframe(data, left_cut, right_cut):
+    '''
+    This method reduces the extension of the rows of the dataframe. 
+    The starting data indicates how many starting lines to cut and how many ending lines to cut 
+        .....................................................
+        ......................................................
+
+         Input parameters:
+         - data: 
+            the dataframe
+         - left_cut: 
+            index value.
+         - right_cut: 
+            index value.  
+        
+        ......................................................
+         Return:
+         - dataframe trimmed. 
+        ......................................................
+        ......................................................
+    '''
+    return data.loc[:,left_cut:right_cut]
+    
 
 
 

@@ -3,7 +3,7 @@ import numpy as np
 from picts_gif import utilities
 import json
 
-
+import matplotlib.pyplot as plt 
 class InputHandler:
     '''
     This class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input
@@ -41,7 +41,9 @@ class InputHandler:
         # Import the file with the Tdms libraries
         # Within the tdms_file object, the acquired data is found in 'Measured Data'.
         # This option is not universal, but specific to our data acquisition system.
-        data = utilities.convert_tdms_file_to_dataframe(path, data_group_name)
+        #becouse a problem in data acquisition software (LabVIEW) the data transient stored are inverted 
+        #To have the proper data, i have to return the inverted dataframe
+        data = -utilities.convert_tdms_file_to_dataframe(path, data_group_name)
         #set column and index name
         dict_name = {
                     'index_name': 'Time (s)',
@@ -52,10 +54,15 @@ class InputHandler:
         #check amplifier_gain > 0
         data = utilities.set_current_value(data, configuration['gain'])
         #set the zero in x-axis
+        
         data = utilities.check_and_fix_trigger_value_if_corrupted(data, configuration['set_zero'])
-        #becouse a problem in data acquisition software (LabVIEW) the data transient stored are inverted 
-        #To have the proper data, i have to return the inverted dataframe
-        return -data 
+        #some trim of data
+        if (configuration['trim_left'] != None  and configuration['trim_right'] != None):
+            left_index_cut = configuration['trim_left']
+            right_index_cut = configuration['trim_right']
+            data = utilities.trim_dataframe(data, left_index_cut, right_index_cut)
+       
+        return data 
 
     @staticmethod
     def read_transients_from_pkl(path):
@@ -103,9 +110,6 @@ class InputHandler:
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
         
-        
-        
-
         #normalized the current transient
         #recover the values ​​of the dark current
         i_dark_range = [configuration['i_dark_left'], configuration['i_dark_right']]
@@ -117,7 +121,6 @@ class InputHandler:
        # print(i_light, i_dark)
        # if i_light.iloc[0:1] < i_dark.iloc[0:1]:  raise ValueError('In normalized_transient: i_light smaller than i_dark.')
         transient_norm = (transient-i_dark)/(i_light-i_dark)
-        #transient_norm.iloc[:,50:51].plot()
        # plt.title("transient_norm")
         return transient_norm
 
@@ -198,11 +201,16 @@ if __name__ == "__main__":
     normalized_transient = InputHandler.normalized_transient(transient, dic_path)
     picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, dic_path)
      
-    print('data',transient.head())
-    print('transient',normalized_transient.head())
-    print('picts',picts.head())
-    print('gates',gates)
-    
+    #print('data',transient.head())
+    #print('transient',normalized_transient.head())
+    #print('picts',picts.head())
+    #print('gates',gates)
+    picts.plot()
+    plt.show()
+    #transient[90.768].plot()
+    #plt.show()
+    #normalized_transient[90.768].plot()
+    #plt.show()
 
    
 

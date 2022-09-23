@@ -18,14 +18,15 @@ class PictsSpectrumPlot:
         self.current_column = df.columns[self.column_index]   #tiene conto della colonna in cui ci troviamo
         self.point_index = 0  # verrà incrementato ogni qual volta che plottiamo un punto di una curva
         self.lines = [] # lista di Line2D
+        self.scatter = None
         
         for i in range(self.number_of_columns):
             self.lines += self.ax.plot([], [], label = f"Rate window: {self.df.columns[i]}")
 
     def ani_init(self): 
         # get max of df
-        self.ax.set_xlim(0, self.df.index.max())
-        self.ax.set_ylim(0, self.df.max().max())
+        self.ax.set_xlim(self.df.index.min() - self.df.index.min()/10, self.df.index.max() + self.df.index.max()/10)
+        self.ax.set_ylim(self.df.min().min() - self.df.min().min()/10, self.df.max().max() + self.df.max().max()/10)
         return self.lines
 
     def ani_update(self, frame):
@@ -42,31 +43,38 @@ class PictsSpectrumPlot:
         # estraggo i dati che voglio plottare (aggiungo un punto in più ogni volta)
         column_data_y = self.df[self.current_column].iloc[:self.point_index]
         column_data_x = self.df.index[:self.point_index]
+        
+       
 
         # aggiungo un punto alla curva corrente che corrisponde alla colonna
         self.lines[self.column_index].set_data(column_data_x, column_data_y)
 
         self.point_index += 1
 
-        try:
-            print(f"frame: {frame} - column: {self.current_column} - point: {self.point_index} y size: {len(column_data_y)} - y_value: {column_data_y.iloc[-1]}")
-        except Exception as e:
-            pass
+        #if self.scatter is not None:
+        #  self.scatter.remove()
+        #self.scatter = self.ax.scatter(x=self.current_column, y=column_data_y.iloc[self.point_index])
+
+        #try:
+        #    print(f"frame: {frame} - column: {self.current_column} - point: {self.point_index} y size: {len(column_data_y)} - y_value: {column_data_y.iloc[-1]}")
+        #except Exception as e:
+        #    pass
         
         #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
         #ax.set_xlim(0, frame/10)
         return self.lines
             
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     
     path = '/home/vito/picts_gif/tests/test_data/data.tdms'
     dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
     #data = InputHandler.read_transients_from_pkl("/home/vito/picts_gif/tests/test_data/test.pkl")
-    data = InputHandler.read_transients_from_tdms(path)
-    transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, dic_path)
+    data = InputHandler.read_transients_from_tdms(path, dic_path)
+    normalized_transient = InputHandler.normalized_transient(data, dic_path)
+    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, dic_path)
     
     
     fig, ax = plt.subplots(1,1)
     hp = PictsSpectrumPlot(fig=fig, ax=ax, df=picts)
-    plt.show()
+    plt.show() """
