@@ -66,4 +66,7 @@ if __name__ == "__main__":
     data = InputHandler.read_transients_from_tdms(path)
     transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, dic_path)
     
-  
+    
+    fig, ax = plt.subplots(1,1)
+    hp = PictsSpectrumPlot(fig=fig, ax=ax, df=picts)
+    plt.show()

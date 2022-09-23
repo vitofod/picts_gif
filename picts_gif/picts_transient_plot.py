@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.patches as patches
 
 from picts_gif.input_handler import InputHandler
-from picts_gif import preprocessing
+from picts_gif import utilities
 
 class PictsTransientPlot:
 
@@ -17,20 +17,19 @@ class PictsTransientPlot:
         self.transient_df = transient_df
         self.gates_list = gates_list
         self.gate_index = -1
-
         self.column_index = 0   #verrà incrementato ogni volta che plottiamo una curva
         self.current_column = self.transient_df.columns[self.column_index]   # tiene conto della colonna in cui ci troviamo
-
         self.lines = []
         self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
         self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         self.scatter = None  
+        self.arrow = None
       #TODO calcolare tutti gli indici nell'init
  
     def ani_init(self): 
         # get max of df
-        self.ax.set_xlim(-0.01, 0.01)
-        self.ax.set_ylim(-0.05, 1)
+        self.ax.set_xlim(0, 0.01)
+        self.ax.set_ylim(-0.05, 0.2)
         self.column_index = 0 
 
         self.gate_index += 1
@@ -97,12 +96,16 @@ class PictsTransientPlot:
         self.scatter = self.ax.scatter(x=gate, y=ys)
 
         # Arrow annotation
-        self.ax.annotate( 
-            text=".", 
-            xy = (0,0.02),
-            xytext = (0,0.02),
-            arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
-            )
+        if self.arrow is not None:
+          self.arrow.remove()
+        self.arrow = self.ax.annotate( 
+                                      text="", 
+                                      xy = (0,ys.iloc[0]),
+                                      xytext = (0,ys.iloc[1]),
+                                      arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
+                                      )
+
+        
 
         #self.point_index += 1
         #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
