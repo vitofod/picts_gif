@@ -1,7 +1,6 @@
-from nptdms import TdmsFile
 import pandas as pd
 import numpy as np
-from picts_gif import preprocessing
+from picts_gif import utilities
 import json
 
 
@@ -13,103 +12,98 @@ class InputHandler:
         pass
     
     @staticmethod
-    def read_transients_from_tdms(path, data_group_name = 'Measured Data'):
+    def read_transients_from_tdms(path, configuration_path, data_group_name = 'Measured Data'):
         '''
          This method transforms a TDMS file into a data frame.
          The dataframe contains current transients with time as index and temperature as columns.
-  
+         .....................................................   
          .....................................................
 
          The input parameters are:
          - path: 
             string with file path of TDMS file
+         - configuration_path:
+            path to a json file with all needed information to analyze the input data.
+            This information comes from a preliminary data analysis done with the data 
+            acquisition software in LabVIEW
          - data_group_name: 
             the string key in wich data are stored in TDMS file. 'Measured Data' by defaoult
         
          ......................................................
-         The output file is a dataframe in wich are stored current transient in function of temperature. 
+         Return:
+         - a dataframe in wich are stored current transient in function of temperature. 
+         ......................................................
+         ......................................................
         '''
+        #open the json parameters file
+        with open(configuration_path, "r") as pfile:
+            configuration = json.load(pfile)
         # Import the file with the Tdms libraries
-        tdms_file = TdmsFile.read(path)
         # Within the tdms_file object, the acquired data is found in 'Measured Data'.
-        # This option is not universal, but specific to our data acquisition system in Bologna.
-        data = tdms_file[data_group_name].as_dataframe()   
-
-        # I arrange the labels of the columns. The acquisition system provides a standard name of the type 'wf_ <temperature value>'. 
-        # For convenience, I want the name of the columns to coincide with the value of the temperature at which the current transient was measured.
-        data.columns = [float(temp.replace('wf_','')) for temp in data.columns]
-        data.columns.name = 'Temperature (K)'
-
- 
-        # I want to set the index (the time, it will be my x-axis) and arrange the x-axis so that the zero of my reference system coincides 
-        # with the LED turning off. 
-        # The moment the LED turns off is recorded in the Tdms file, as it is used as a trigger for the acquisition of the measurement.
-        # Take index from the first channel, it should be the same for all channels (i.e.) temperatures. 
-        data.index = tdms_file[data_group_name].channels()[0].time_track()
-        data.index.name = 'Time (s)' #Rename the index
-        # LabVIEW program saves in 'wf_trigger_offset' info of the LED trigger
-        trigger = tdms_file[data_group_name].channels()[0].properties['wf_trigger_offset']  
-        data.index -= trigger
-        return -data
+        # This option is not universal, but specific to our data acquisition system.
+        data = utilities.convert_tdms_file_to_dataframe(path, data_group_name)
+        #set column and index name
+        dict_name = {
+                    'index_name': 'Time (s)',
+                    'columns_name': 'Temperature (K)'
+                    }
+        data = utilities.set_column_and_index_name(data, dict_name)
+        # set the correct value of the current. 
+        #check amplifier_gain > 0
+        data = utilities.set_current_value(data, configuration['gain'])
+        #set the zero in x-axis
+        data = utilities.check_and_fix_trigger_value_if_corrupted(data, configuration['set_zero'])
+        #becouse a problem in data acquisition software (LabVIEW) the data transient stored are inverted 
+        #To have the proper data, i have to return the inverted dataframe
+        return -data 
 
     @staticmethod
     def read_transients_from_pkl(path):
          '''
          This method transforms a.pkl into a data frame.
          Dataframe containing current transients with time as index and temperature as columns
-  
+         .....................................................
          .....................................................
 
          The input parameters are:
          - path: 
             string with file path of TDMS file
          ......................................................
-         The output file is a dataframe in wich are stored current transient in function of temperature. 
+         Return:
+         - a dataframe in wich are stored current transient in function of temperature. 
+         ......................................................
+         ......................................................
         '''
          if '.pkl' in path: 
             return pd.read_pickle(path,'bz2')   
 
-
-    @staticmethod
-    def from_transient_to_PICTS_spectrum (data, configuration_path):
+    def normalized_transient(transient, configuration_path):
         '''
-         This method transforms the raw dataframe input from 'read_transient_from_*' into a dataframe containing the PICTS spectrum.
-         Dataframe have temperature as index and rate window as columns
-  
+         This method normalized the raw transient dataframe input from 'read_transient_from_*'.
+         .....................................................
          .....................................................
 
          The input parameters are:
          - data: 
-            dataframe to analyze    
-         - parameters_path:
-            path to a json file with all needed information to analyze the input data
+            transient dataframe to normalize    
+         - configuration_path:
+            path to a json file with all needed information to analyze the input data.
+            This information comes from a preliminary data analysis done with the data 
+            acquisition software in LabVIEW
         
          ......................................................
-         The output file are:
-         - transient:
-             a dataframe in wich are stored processed current transient in function of temperature, with time as index and temperature as columns.
-         - picts:
-            a dataframe with the picts spectrum, with temperature as index and 'rate window' as columns.    
+         Return:
+         - normalized_transient:
+             a dataframe in wich are stored normalized current transient in function of temperature, 
+             with time as index and temperature as columns.
+         ......................................................
+         ......................................................
         '''
-        #TODO il problema è da dove inizia a contare il tempo
-        
         #open the json parameters file
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
         
-        # set the correct value of the current. 
-        #check amplifier_gain > 0
-        if configuration['gain'] < 0:  raise ValueError('In set_amplifier_gain: Not appropiate value.')
-        transient = data/configuration['gain']   
-        #It is possible that the trigger data that sets the zero of the transient is corrupted. 
-        # If the data is corrupted, set zero from the configuration file. 
-        if configuration['set_zero'] != 'auto':
-            value = configuration['set_zero']
-            #print(value)
-            #print(transient[value].diff().idxmin())
-            transient.index -= transient[value].diff().idxmin() #the zero is positioned exactly in 
-                                                                                    #the minimum of the derivative 
-                                                                                    # (this is due to the shape of the signal)
+        
         
 
         #normalized the current transient
@@ -123,30 +117,66 @@ class InputHandler:
        # print(i_light, i_dark)
        # if i_light.iloc[0:1] < i_dark.iloc[0:1]:  raise ValueError('In normalized_transient: i_light smaller than i_dark.')
         transient_norm = (transient-i_dark)/(i_light-i_dark)
-        transient_norm.iloc[:,50:51].plot()
+        #transient_norm.iloc[:,50:51].plot()
        # plt.title("transient_norm")
+        return transient_norm
 
-        #I calculate the values ​​of t1
-        t1 = preprocessing.create_t1_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'])
+    @staticmethod
+    def from_transient_to_PICTS_spectrum (transient_norm, configuration_path):
+        '''
+         This method transforms the normalized_transient dataframe into a dataframe containing the PICTS spectrum.
+         Dataframe have temperature as index and rate window as columns
+         .....................................................
+         .....................................................
+
+         The input parameters are:
+         - data: 
+            dataframe to analyze    
+         - parameters_path:
+            path to a json file with all needed information to analyze the input data
+        
+         ......................................................
+         Return:
+         - picts:
+            a dataframe with the picts spectrum, with temperature as index and 'rate window' as columns.    
+         - gates:
+            a list of pair float. Each pair represent a rate window
+         ......................................................
+         REFERENCES:
+         For a better understanding of what a PICTS spectrum is and what a rate window represents see:
+          - J C Balland et al 1986 J. Phys. D: Appl. Phys. 19 57
+          - J C Balland et al 1986 J. Phys. D: Appl. Phys. 19 71  
+          - Pecunia et al. 2021, Adv. Energy Mater. 2021, 11, 2003968 with emphasis on Supporting Info
+         ......................................................
+         ......................................................
+        '''
         
         
-        # Create t2 based on t1 and beta
-        t2 = np.array([configuration['beta']*t1 for t1 in t1])
-        if (t2>transient_norm.index.max()).any():      # If any value in t2 is bigger than the maximum time of the transients
-           raise ValueError('Some t2 values are bigger than the highest value of the transient time index. Adjust your t1 and beta accordingly.')
+        #open the json parameters file
+        with open(configuration_path, "r") as pfile:
+            configuration = json.load(pfile)
+        
+        
 
-    
-       
+        #I calculate the values ​​of t1 and t2
+        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
+        
+        
         # location of t1 values. needed for using iloc later since loc has problems with tolerance
-        t1_loc = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t1])    
-        t2_loc = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t2])    # location of t2 vcalues
+        #This method allows you to enumerate the values ​​of the indexes (which are floats with many digits after the comma).
+        # In this way, the first index corresponds to 1, the second to 2, etc., etc.
+        t1_index, t2_index = utilities.create_index_for_t1_and_t2(transient_norm, t1, t2)
         
+
         # Calculate rate windows.
-        en = preprocessing.calculate_en(t1, t2 = configuration['beta']*t1)
+        en = utilities.calculate_en(t1, t2 = configuration['beta']*t1)
         # Calculate picts signal for each rate window 
-        picts = pd.concat([transient_norm.iloc[t1-configuration['t_avg']:t1+configuration['t_avg']].mean() 
-                            - transient_norm.iloc[t2-configuration['t_avg']:t2+configuration['t_avg']].mean() \
-                           for t1,t2 in zip(t1_loc,t2_loc)], axis=1)
+        picts = pd.concat(
+                          [transient_norm.iloc[t1-configuration['t_avg']:t1+configuration['t_avg']].mean() 
+                          - transient_norm.iloc[t2-configuration['t_avg']:t2+configuration['t_avg']].mean() \
+                          for t1,t2 in zip(t1_index,t2_index)], 
+                          axis=1
+                          )
         
         #I put in order index and columns
         picts.index=picts.index.astype(float)
@@ -155,7 +185,7 @@ class InputHandler:
         gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a rate window
 
         
-        return transient_norm, picts, gates
+        return  picts, gates
 
 
 if __name__ == "__main__":
@@ -164,9 +194,14 @@ if __name__ == "__main__":
     dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
     
     
-    data = InputHandler.read_transients_from_tdms(path)
-    transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data,  dic_path)
+    transient = InputHandler.read_transients_from_tdms(path, dic_path)
+    normalized_transient = InputHandler.normalized_transient(transient, dic_path)
+    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, dic_path)
      
+    print('data',transient.head())
+    print('transient',normalized_transient.head())
+    print('picts',picts.head())
+    print('gates',gates)
     
 
    
