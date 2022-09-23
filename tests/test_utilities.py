@@ -1,6 +1,6 @@
 import pytest
 
-class TestPreprocessing:
+class TestUtilities:
      #Verifico che il metodo riceva un dataframe e un intero
     def test_set_amplifier_gain_invalid_format(self):
         #è un dataframe?
@@ -8,13 +8,6 @@ class TestPreprocessing:
         #è un numero intero positivo?
         assert type(amplifier_gain) == int, "Incorrect input, not an integer"
     
-
-     def test_optimize_dataframe(self):
-        #è un dataframe?
-        assert isinstance(df, pd.DataFrame)
-        #dropna è un boolean?
-        assert type(dropna) == bool
-        #drop è una list di integer?
 
     #Prima di essere settato, gli istanti temporali sono tutti positivi. Se si setta lo zero
     # del tempo alla caduta del transiente, alla sinistra i dati saranno negativi    

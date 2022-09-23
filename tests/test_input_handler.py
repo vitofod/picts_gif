@@ -5,7 +5,7 @@ import pandas as pd
 
 class TestInputHandler:
 
-    # Il file viene letto corretteamente 
+    # Test if the file is read properly
     def test_read_transient_from_tdms(self):
         """ 
         This test tests that the file is read correctly and returns a dataframe
@@ -15,18 +15,17 @@ class TestInputHandler:
         WHEN: 
             I call the method with the file as parameter
         THEN: 
-            method returns an non-empty dataframe
+            method returns dataframe
         """
-        # ottengo in il path relativo del file, indipendentemente da dove è installato il progetto 
+        # I get in the relative path of the file, regardless of where the project is installed 
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
 
-        df = InputHandler.read_transients_from_tdms(test_file_path, 'Measured Data')
-
+        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert isinstance(df, pd.DataFrame)
         
 
 
-    # Si passa un data_group_name non valido e si verifica che la funzione lanci un'eccezione
     def test_read_transient_from_tdms_invalid_data_group_name(self):
         """ 
         This test tests that if the data_group_name in read_transient_from_tdms
@@ -40,12 +39,12 @@ class TestInputHandler:
             method has to throw an KeyError
         """
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         #se non lancia una eccezione queste due righe fanno fallire il test
         with pytest.raises(KeyError):
-            InputHandler.read_transients_from_tdms(test_file_path, 'invalid_data_group_name')
+            InputHandler.read_transients_from_tdms(test_file_path,dic_path, 'invalid_data_group_name')
         
     
-    # Verifico eccezione se file non tdms
     def test_read_transient_from_tdms_invalid_format(self):
         """ 
         This test tests that if the file have uncorrect extension, method have to throw
@@ -59,11 +58,12 @@ class TestInputHandler:
             method has to throw exception
         """
         test_file_path = join(dirname(__file__), 'test_data/invalid_format.txt')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
 
         with pytest.raises(Exception):
-            InputHandler.read_transients_from_tdms(test_file_path, 'Measured Data')
+            InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
 
-     # Il file viene letto corretteamente e non ci sono problemi
+    
     def test_read_transient_from_pkl(self):
         """ 
         This test tests that the file .pkl is read correctly and returns a dataframe
@@ -76,7 +76,7 @@ class TestInputHandler:
             method returns a dataframe
         """
         # ottengo in il path relativo del file, indipendentemente da dove è installato il progetto il software
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/test.pkl')
 
         df = InputHandler.read_transients_from_pkl(test_file_path)
         assert isinstance(df, pd.DataFrame)
@@ -94,7 +94,8 @@ class TestInputHandler:
             dataframe index is called <Time (s)>
         """
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
-        df = InputHandler.read_transients_from_tdms(test_file_path, 'Measured Data')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Time (s)'
 
     def test_check_correct_column_name_in_dataframe_from_tdms(self):
@@ -110,14 +111,15 @@ class TestInputHandler:
             dataframe columns are called <Temperature (K)>
         """
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
-        df = InputHandler.read_transients_from_tdms(test_file_path, 'Measured Data')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Temperature (K)'
 
     def test_transient_and_picts_datafram_have_same_index_column_lenght(self):
         """ 
         This test tests that returned index lenght dataframe <transient_norm> 
         and the column lenght of <picts> dataframe from
-        from_transient_to_PICTS_spectrum are the same.
+        from_transient_to_PICTS_spectrum have the same lenght.
     
         GIVEN: 
             the returned dataframe from read_transient_from_tdms and the proper 
@@ -129,7 +131,7 @@ class TestInputHandler:
         """
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-        df = InputHandler.read_transients_from_tdms(test_file_path, 'Measured Data')
+        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(df,  dic_path)
         assert len(transient.index) == len(picts.columns)
 
