@@ -18,18 +18,24 @@ def convert_tdms_file_to_dataframe(path, data_group_name):
         ......................................................
          Return:
          - dataframe in wich are stored current transient in function of temperature. 
-        ......................................................
-        ......................................................
+         ......................................................
+         REFERENCES:
+         For a better understanding about tdms file format:
+          - https://www.ni.com/it-it/support/documentation/supplemental/06/the-ni-tdms-file-format.html 
+         ......................................................
+         ......................................................
     '''
     # Import the file with the Tdms libraries
     tdms_file = TdmsFile.read(path)
     # Within the tdms_file object, the acquired data is found in 'Measured Data'.
     # This option is not universal, but specific to our data acquisition system.
     data = tdms_file[data_group_name].as_dataframe()
+    #data = data.iloc[:,:-5]
     #info about the starting index due to the trigger
-    # LabVIEW program saves in 'wf_trigger_offset' info of the LED trigger
-    data.index = tdms_file[data_group_name].channels()[0].time_track()
-    trigger = tdms_file[data_group_name].channels()[0].properties['wf_trigger_offset']  
+    # LabVIEW program saves info about LED trigger in 'wf_trigger_offset' 
+    
+    data.index = tdms_file[data_group_name].channels()[0].time_track() #this syntax is due to the structure of the tdms files. It's a bit tricky
+    trigger = tdms_file[data_group_name].channels()[0].properties['wf_trigger_offset']  #this syntax is due to the structure of the tdms files. It's a bit tricky
     data.index -= trigger
     return data
 
@@ -56,10 +62,7 @@ def set_column_and_index_name(data, dic_name):
     data.columns = [float(temp.replace('wf_','')) for temp in data.columns]
     data.columns.name = dic_name['columns_name']
     data.index.name = dic_name['index_name'] #Rename the index
-    # I want to set the index (the time, it will be my x-axis) and arrange the x-axis so that the zero of my reference system coincides 
-    # with the LED turning off. 
-    # The moment the LED turns off is recorded in the Tdms file, as it is used as a trigger for the acquisition of the measurement.
-    # Take index from the first channel, it should be the same for all channels (i.e.) temperatures. 
+     
     return data
 
 def set_current_value(data, gain):
@@ -80,17 +83,12 @@ def set_current_value(data, gain):
         ......................................................
         ......................................................
     '''
-    # set the correct value of the current. 
-    #check amplifier_gain > 0
-    if gain <= 0:  raise ValueError('In set_amplifier_gain: Not appropiate value.')
-    if not isinstance(gain, float): raise TypeError('In set_amplifier_gain: Not a number.')
-    transient = data/gain 
-    return transient 
+    return = data/gain  
 
-def check_and_fix_trigger_value_if_corrupted(data, trigger_value):
+def check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(data, trigger_value):
     '''
-    This method check if the index zero coincide with trigger data. If not,
-    sets the proper value. 
+    This method check if the zero of the time index coincide with the drop of the current. If not,
+    it fixs index value. 
         .....................................................
         ......................................................
 
@@ -106,13 +104,22 @@ def check_and_fix_trigger_value_if_corrupted(data, trigger_value):
         ......................................................
         ......................................................
     '''
+    # I want that the index (the time, it is my x-axis) have a proper zero in reference system, 
+    # that coincides with the LED turning off. 
+    # The moment the LED turns off is recorded in the Tdms file, as it is used as a trigger for the acquisition of the measurement.
+    # I taked it when i call the methods set_column_and_index_name:
+    
+    #data.index = tdms_file[data_group_name].channels()[0].time_track() 
+    #trigger = tdms_file[data_group_name].channels()[0].properties['wf_trigger_offset']  
+    #data.index -= trigger
+    
     #It is possible that the trigger data that sets the zero of the transient is corrupted. 
-    # If the data is corrupted, set zero from the configuration file. 
+    # If the data is corrupted, with this method i set the zero following different way. 
+    #the zero is positioned exactly in the minimum of the derivative
+    # of the current transient (this is due to the shape of the signal)
 
     if trigger_value != 'auto':
-        data.index -= data[trigger_value].diff().idxmin() #the zero is positioned exactly in 
-                                                          #the minimum of the derivative 
-                                                          # (this is due to the shape of the signal)
+        data.index -= data.iloc[:,200].diff().idxmin() 
     return data 
 
 def trim_dataframe(data, left_cut, right_cut):
@@ -164,11 +171,12 @@ def create_t1_and_t2_values (t1_min, t1_shift, n_windows, beta):
         ......................................................
         ......................................................
     '''
+    #create t1 value starting from some parameters. these parameters were chosen 
+    #on the basis of a previous analysis of the signal, a very long and complex job.
     t1 =  np.array([t1_min+t1_shift*i for i in range(n_windows)])      
      # Create t2 based on t1 and beta
     t2 = np.array([beta*t1 for t1 in t1])
-    #if (t2>transient_norm.index.max()).any():      # If any value in t2 is bigger than the maximum time of the transients
-        #raise ValueError('Some t2 values are bigger than the highest value of the transient time index. Adjust your t1 and beta accordingly.')  
+   
     return t1, t2
 
 def create_index_for_t1_and_t2(transient_norm, t1, t2):
@@ -193,9 +201,9 @@ def create_index_for_t1_and_t2(transient_norm, t1, t2):
         ......................................................
         ......................................................
     '''
-     # location of t1 values. needed for using iloc later since loc has problems with tolerance
-    #This method allows you to enumerate the values ​​of the indexes (which are floats with many digits after the comma).
-    # In this way, the first index corresponds to 1, the second to 2, etc., etc.
+    #Needed for using iloc later since iloc has problems with tolerance
+    #This method allows us to enumerate the values ​​of the indexes (which are floats with many digits after the comma).
+    #In this way, the first index corresponds to 1, the second to 2, etc., etc.
     
     t1_index = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t1])    
     t2_index = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t2])    # location of t2 vcalues
@@ -203,9 +211,7 @@ def create_index_for_t1_and_t2(transient_norm, t1, t2):
 
 def en_2gates_high_injection (en, t1, t2):
     '''
-    The roots of this function gives the value of en for a given t1 and t2.
-    This is a trascendental equation with 2 solutions. One solution is 0, the other is the real value of en.
-    For reference see Balland et al. 1984 part II and Supporting info of Pecunia et al. 2021.
+    This methods return the relation between en and (t1, t2).
     .....................................................
     ......................................................
 
@@ -220,16 +226,25 @@ def en_2gates_high_injection (en, t1, t2):
         
         ......................................................
          Return:
-         - the float solution of the expression
+         - a trascendental equation
         ......................................................
-        ......................................................
+         REFERENCES:
+         For a better understanding about the relation between e_n and (t1, t2) see:
+          - J C Balland et al 1986 J. Phys. D: Appl. Phys. 19 71  
+          - Pecunia et al. 2021, Adv. Energy Mater. 2021, 11, 2003968 with emphasis on Supporting Info
+         ......................................................
+         ......................................................
     '''
+    #The theory behind which the PICTS technique was developed 
+    # gives us a relationship between the emission rate en and the values ​​t1 and t2 of the selected rate window
     return np.exp(en*(t2-t1)) - ( (1-en*t2)/(1-en*t1))
 
 def calculate_en (t1, t2):
     '''
-    Returns the rate window values starting from the gate values. It numerically solves the related equation
-    For reference see Balland et al. 1984 part I and II and Supporting info of Pecunia et al. 2021.
+    Returns an numpy array with en values starting from the gate values. 
+    It numerically solves the related trascendental equation returned from 
+    en_2gates_high_injection. This equation have two solution: one is zero, the other is the real value of 
+    en. Zero solution is the bad one.
     .....................................................
     ......................................................
 
@@ -242,15 +257,21 @@ def calculate_en (t1, t2):
         ......................................................
          Return:
          - a numpy array with the rate window values
-        ......................................................
-        ......................................................
+         ......................................................
+         REFERENCES:
+         For a better understanding about the relation between e_n and (t1, t2) see:
+          - J C Balland et al 1986 J. Phys. D: Appl. Phys. 19 71  
+          - Pecunia et al. 2021, Adv. Energy Mater. 2021, 11, 2003968 with emphasis on Supporting Info
+         ......................................................
+         ......................................................
     '''
   
     en = np.array([])
     for t1, t2 in zip(t1,t2):
-        #The problem is to choose a starting point that is closer to our searched value than to 0, 
-        # otherwise the function will return the 0 value as result. I use this suggested expression 
-        # from Supporting info of Pecunia et al. 2021.
+        #The problem is to choose a starting point for en that is closer to our searched value than to 0, 
+        # otherwise the function will return the 0 value as result. I use the "low injection" expression for en, 
+        # see Supporting info of Pecunia et al. 2021. I chose this expression because it returns
+        # an approximate value ​​of en, the so-called 'low injection', close to the real one. 
         en_guess = 1/(t2-t1)*(t2/t1)    
         
         
