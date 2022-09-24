@@ -20,7 +20,6 @@ class TestInputHandler:
         # I get in the relative path of the file, regardless of where the project is installed 
         test_file_path = join(dirname(__file__), 'test_data/test.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert isinstance(df, pd.DataFrame)
         
@@ -134,5 +133,8 @@ class TestInputHandler:
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(df,  dic_path)
         assert len(transient.index) == len(picts.columns)
+        
+        
+
 
    

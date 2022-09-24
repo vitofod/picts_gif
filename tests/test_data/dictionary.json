@@ -3,7 +3,7 @@
  "i_light_right": -6e-5,
  "i_dark_left": 0.036,
  "i_dark_right": 3.75e-2,
- "set_zero": 250.890,
+ "set_zero": 200,
  "t1_min" : 1e-3,
  "t1_shift" : 0.0002,
  "beta": 3,
