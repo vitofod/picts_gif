@@ -112,17 +112,19 @@ class PictsTransientPlot:
         return self.lines
             
 
-""" if __name__ == "__main__":
+if __name__ == "__main__":
     
-    data = InputHandler.read_transients_from_tdms("/home/vito/picts_gif/tests/test_data/data.tdms")
-    transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, "/home/vito/picts_gif/tests/test_data/dictionary.json")
-    print(transient.shape)
-    print(transient.iloc[463:470, :])
+    conf = "/home/vito/picts_gif/tests/test_data/dictionary.json"
+    data = InputHandler.read_transients_from_tdms("/home/vito/picts_gif/tests/test_data/data.tdms", conf )
+    norm_transient = InputHandler.normalized_transient(data,conf)
+    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, conf)
+    #print(transient.shape)
+    #print(transient.iloc[463:470, :])
     #print(transient.iloc[0:1])
 
     fig, ax = plt.subplots(1,1)
-    hp = PictsTransientPlot(fig=fig, ax=ax, transient_df=transient, gates_list=gates)
-    plt.show() """
+    hp = PictsTransientPlot(fig=fig, ax=ax, transient_df=norm_transient, gates_list=gates)
+    plt.show() 
 
     #print(gates)
     #y_index = transient.columns.get_indexer([temp], method = 'backfill')[0] for temp in transient.columns[0]])

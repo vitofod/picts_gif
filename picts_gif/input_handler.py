@@ -3,9 +3,10 @@ import numpy as np
 from picts_gif import utilities
 import json
 
+import matplotlib.pyplot as plt 
 class InputHandler:
     '''
-    This class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input as .pkl
+    This class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input
     '''
     def __init__(self):
         pass
@@ -30,48 +31,37 @@ class InputHandler:
         
          ......................................................
          Return:
-         - Pandas dataframe  
+         - a dataframe in wich are stored current transient in function of temperature. 
          ......................................................
          ......................................................
         '''
-        #open the json configuration file
+        #open the json parameters file
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
-            
-        #Import the Tdms file 
-        #The acquired data is found in 'Measured Data' in tdms file.
-        #This option is not universal, but specific to our data acquisition system.
-        #Becouse a problem in data acquisition software (LabVIEW), the data transient stored are inverted 
+        # Import the file with the Tdms libraries
+        # Within the tdms_file object, the acquired data is found in 'Measured Data'.
+        # This option is not universal, but specific to our data acquisition system.
+        #becouse a problem in data acquisition software (LabVIEW) the data transient stored are inverted 
         #To have the proper data, i have to return the inverted dataframe
-        #You can see the dataframe as a table in which index is the x-axis and each column
-        # represent a y-axis. Dataframe contains hundreds of transient, i don't suggest you
-        # to use 'data.plot()'. If you want to see a transient, a good choise could be the 
-        # hvplot from holoviews. Or simply 'data[<column>].plot()'
         data = -utilities.convert_tdms_file_to_dataframe(path, data_group_name)
-        
         #set column and index name
         dict_name = {
                     'index_name': 'Time (s)',
                     'columns_name': 'Temperature (K)'
                     }
         data = utilities.set_column_and_index_name(data, dict_name)
-        
         # set the correct value of the current. 
+        #check amplifier_gain > 0
         data = utilities.set_current_value(data, configuration['gain'])
+        #set the zero in x-axis
         
-        #set the zero in x-axis 
-        #It is possible that the trigger data that sets the zero of the transient is corrupted.
-        #Index dataframe is our x-axis. I want that the zero of the x-axis coincide with the drop of the current.
-        #LabVIEW software sets the proper zero, but becouse an unknown bug, sometimes doesn't work. So we have to ceck it.
         data = utilities.check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(data, configuration['set_zero'])
-        
-        #some trim of data. Data at low temperature are very noisy. And in animation i don't want to
-        #show the entire data, only some part of interest. So let's do some pruning
+        #some trim of data
         if (configuration['trim_left'] != None  and configuration['trim_right'] != None):
             left_index_cut = configuration['trim_left']
             right_index_cut = configuration['trim_right']
             data = utilities.trim_dataframe(data, left_index_cut, right_index_cut)
-        
+       
         return data 
 
     @staticmethod
@@ -87,15 +77,13 @@ class InputHandler:
             string with file path of TDMS file
          ......................................................
          Return:
-         - a pandas Dataframe 
+         - a dataframe in wich are stored current transient in function of temperature. 
          ......................................................
          ......................................................
         '''
-        #we can pass the data as .pkl. 
          if '.pkl' in path: 
             return pd.read_pickle(path,'bz2')   
-    
-    @staticmethod
+
     def normalized_transient(transient, configuration_path):
         '''
          This method normalized the raw transient dataframe input from 'read_transient_from_*'.
@@ -113,35 +101,27 @@ class InputHandler:
          ......................................................
          Return:
          - normalized_transient:
-             a pandas dataframe in wich are stored normalized current transient in function of temperature, 
+             a dataframe in wich are stored normalized current transient in function of temperature, 
              with time as index and temperature as columns.
          ......................................................
          ......................................................
         '''
-        #The values of the transient could change a lot in function of temperature.
-        #Bad thing for animation. normalizing avoids a lot of trouble
-        
-        #open the json configuration file
+        #open the json parameters file
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
         
-        
-        #for normalized the transient we want to know the value of dark current and light current
-        #To be more precise, we don't take a single current value, but we take a range over which we average
-        
-        #recover the values ​​of the dark current in a range 
+        #normalized the current transient
+        #recover the values ​​of the dark current
         i_dark_range = [configuration['i_dark_left'], configuration['i_dark_right']]
-        #recover the values ​​of the light current in a range
+        #recover the values ​​of the light current
         i_light_range = [configuration['i_light_left'], configuration['i_light_right'] ]
-        
         #the value of the light and dark currents are the averages of the values ​​of the currents in the assigned ranges
         i_light = transient.loc[i_light_range[0]:i_light_range[1]].mean()
         i_dark = transient.loc[i_dark_range[0]:i_dark_range[1]].mean()
-       
-       #normalized the current transient
-       #The expression in the numerator allows us to set the dark current value to zero
+       # print(i_light, i_dark)
+       # if i_light.iloc[0:1] < i_dark.iloc[0:1]:  raise ValueError('In normalized_transient: i_light smaller than i_dark.')
         transient_norm = (transient-i_dark)/(i_light-i_dark)
-      
+       # plt.title("transient_norm")
         return transient_norm
 
     @staticmethod
@@ -186,31 +166,32 @@ class InputHandler:
         
         
         # location of t1 values. needed for using iloc later since loc has problems with tolerance
-        #This method allows us to enumerate the values ​​of the indexes (which are floats with many digits after the comma).
+        #This method allows you to enumerate the values ​​of the indexes (which are floats with many digits after the comma).
         # In this way, the first index corresponds to 1, the second to 2, etc., etc.
         t1_index, t2_index = utilities.create_index_for_t1_and_t2(transient_norm, t1, t2)
         
 
-        # Calculate emission rate from rate window. t2 is proportional to t1. Beta is the proportional factor.
+        # Calculate rate windows.
         en = utilities.calculate_en(t1, t2 = configuration['beta']*t1)
         # Calculate picts signal for each rate window 
-        #PICTS signal = i(t1) - i(t2) but signal are very noisy, so i do an average
-        i_t1 = transient_norm.iloc[t1-configuration['t_avg']:t1+configuration['t_avg']].mean()
-        i_t2 = transient_norm.iloc[t2-configuration['t_avg']:t2+configuration['t_avg']].mean()
-        picts = pd.concat([i_t1 - i_t2  for t1,t2 in zip(t1_index,t2_index)], axis=1)
+        picts = pd.concat(
+                          [transient_norm.iloc[t1-configuration['t_avg']:t1+configuration['t_avg']].mean() 
+                          - transient_norm.iloc[t2-configuration['t_avg']:t2+configuration['t_avg']].mean() \
+                          for t1,t2 in zip(t1_index,t2_index)], 
+                          axis=1
+                          )
         
         #I put in order index and columns
         picts.index=picts.index.astype(float)
         picts.columns = en.round(3)
         picts.columns.name = 'Rate Window (Hz)'
-        #I put all the (t1,t2) pairs in a numpy list. I will need them later for the animation
-        gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a (t1,t2) pair. it's just for my convenience
+        gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a rate window
 
         
         return  picts, gates
 
 
-""" if __name__ == "__main__":
+if __name__ == "__main__":
     
     path = '/home/vito/picts_gif/tests/test_data/data.tdms'
     dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
@@ -229,7 +210,7 @@ class InputHandler:
     #transient[90.768].plot()
     #plt.show()
     #normalized_transient[90.768].plot()
-    #plt.show() """
+    #plt.show()
 
    
 

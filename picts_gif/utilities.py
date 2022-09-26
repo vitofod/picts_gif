@@ -83,7 +83,7 @@ def set_current_value(data, gain):
         ......................................................
         ......................................................
     '''
-    return = data/gain  
+    return  data/gain  
 
 def check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(data, trigger_value):
     '''
