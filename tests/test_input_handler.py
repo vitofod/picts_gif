@@ -18,8 +18,9 @@ class TestInputHandler:
             method returns dataframe
         """
         # I get in the relative path of the file, regardless of where the project is installed 
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert isinstance(df, pd.DataFrame)
         
@@ -37,7 +38,7 @@ class TestInputHandler:
         THEN: 
             method has to throw an KeyError
         """
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         #se non lancia una eccezione queste due righe fanno fallire il test
         with pytest.raises(KeyError):
@@ -92,7 +93,7 @@ class TestInputHandler:
         THEN: 
             dataframe index is called <Time (s)>
         """
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Time (s)'
@@ -109,12 +110,12 @@ class TestInputHandler:
         THEN: 
             dataframe columns are called <Temperature (K)>
         """
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
-        assert df.index.name == 'Temperature (K)'
+        assert df.columns.name == 'Temperature (K)'
 
-    def test_transient_and_picts_datafram_have_same_index_column_lenght(self):
+    def test_transient_dataframe_columns_and_picts_datafram__index_have_same_lenght(self):
         """ 
         This test tests that returned index lenght dataframe <transient_norm> 
         and the column lenght of <picts> dataframe from
@@ -128,11 +129,11 @@ class TestInputHandler:
         THEN: 
             the index lenght of <transient> == column lenght of <picts>
         """
-        test_file_path = join(dirname(__file__), 'test_data/test.tdms')
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
-        transient, picts, gates = InputHandler.from_transient_to_PICTS_spectrum(df,  dic_path)
-        assert len(transient.index) == len(picts.columns)
+        picts, gates = InputHandler.from_transient_to_PICTS_spectrum(df,  dic_path)
+        assert len(df.columns) == len(picts.index)
         
         
 
