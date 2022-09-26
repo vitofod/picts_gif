@@ -8,6 +8,19 @@ from picts_gif import utilities
 from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
 from picts_gif.picts_transient_plot import PictsTransientPlot
 
+"""
+* Sistemare i tests
+* Scrivere il main con una CLI (argparse)
+* Completare il README (come si lancia il main del software)
+* Provare a installare il software from scratch
+* Terminare l'animazione senza eccezione
+* Esportare il plot in .gif / .mp4 (installare pillow oppure imagemagik)
+* Testare il salvataggio del plot
+* Code coverage (pytest-cov) https://pytest-cov.readthedocs.io/en/latest/ pytest --cov=myproj tests/
+* Il terzo plot (optional)
+"""
+
+
 if __name__ == "__main__":
 
     path = '/home/vito/picts_gif/tests/test_data/data.tdms'
@@ -25,4 +38,5 @@ if __name__ == "__main__":
 
     hp = PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates)
     plt.show()
+    
 

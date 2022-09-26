@@ -65,7 +65,7 @@ def set_column_and_index_name(data, dic_name):
      
     return data
 
-def set_current_value(data, gain):
+def set_current_value(data : pd.DataFrame, gain : int) -> float:
     '''
     This method sets the proper values of current. 
         .....................................................
@@ -83,7 +83,8 @@ def set_current_value(data, gain):
         ......................................................
         ......................................................
     '''
-    return  data/gain  
+    if gain <= 0: raise ValueError('Gain must be > 0')
+    return data/gain  
 
 def check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(data, trigger_value):
     '''
@@ -143,6 +144,7 @@ def trim_dataframe(data, left_cut, right_cut):
         ......................................................
         ......................................................
     '''
+    if left_cut > right_cut: raise ValueError('Left index must be smaller the right one')
     return data.loc[:,left_cut:right_cut]
     
 

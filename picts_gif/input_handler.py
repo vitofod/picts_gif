@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 from picts_gif import utilities
 import json
-
 import matplotlib.pyplot as plt 
+
 class InputHandler:
     '''
     This class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input
