@@ -9,4 +9,7 @@ dependencies:
     - nptdms 
     - pytest
     - pandas
+    - matplotlib
+    - pytest-cov
+    
   

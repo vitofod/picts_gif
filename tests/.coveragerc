@@ -1,0 +1,10 @@
+[run]
+omit =
+    */__init__.py
+    */plotting.py
+    */plotting_v2.py
+    */plotting_v3.py
+
+[report]
+exclude_lines = 
+    if __name__ == .__main__.:

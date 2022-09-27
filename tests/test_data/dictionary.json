@@ -10,7 +10,7 @@
     "t1_min" : 1e-3,
     "t1_shift" : 0.0002,
     "beta": 3,
-    "n_windows" : 8,
+    "n_windows" : 3,
     "t_avg" : 50,
     "trim_left" : 105.260,
     "trim_right" : 270.770
