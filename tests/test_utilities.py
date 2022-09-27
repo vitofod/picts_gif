@@ -24,9 +24,9 @@ def configuration(configuration_path):
 
 #return a dataframe
 @pytest.fixture
-def input_dataframe(configuration_path):
-    path = join(dirname(__file__), 'test_data/data.tdms')
-    df = InputHandler.read_transients_from_tdms(path, configuration_path, 'Measured Data')
+def input_dataframe(test_file_path):
+    #path = join(dirname(__file__), 'test_data/data.tdms')
+    df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
     return df
 
 class TestUtilities:
@@ -58,8 +58,8 @@ class TestUtilities:
         """
         # I get in the relative path of the file, regardless of where the project is installed 
         
-        df = utilities.set_column_and_index_name(input_dataframe, configuration)
-        assert df.columns.name == 'Temperature (K)' and df.index.name == 'Time (s)'
+        df = utilities.set_column_and_index_name(input_dataframe)
+        assert (df.columns.name == 'Temperature (K)' and df.index.name == 'Time (s)')
         
     def test_set_current_value_gain_invalid_format_negative_number(self, input_dataframe):
         """ 
@@ -133,7 +133,7 @@ class TestUtilities:
             
     def test_trim_database_work(self, input_dataframe, configuration):
         """ 
-        This test tests that trim_dataframe actually returns a dataframe with fewer rows
+        This test tests that trim_dataframe actually returns a dataframe with fewer columns
     
         GIVEN: 
             a transient dataframe and two index value
@@ -145,12 +145,12 @@ class TestUtilities:
             
         left_column_cut = configuration['trim_left']
         right_column_cut = configuration['trim_right']  
-        
+        df = utilities.set_column_and_index_name(input_dataframe)
         if (configuration['trim_left'] != None and configuration['trim_right'] != None):   
             #I call the method to test
-            new_df = utilities.trim_dataframe(input_dataframe, left_column_cut, right_column_cut) 
+            new_df = utilities.trim_dataframe(df, left_column_cut, right_column_cut) 
             
-            assert len(new_df.index) < len(input_dataframe.index)
+            assert len(new_df.columns) < len(df.columns)
 
     def test_trim_database_left_value_is_smaller_than_right_value(self, input_dataframe, configuration):
         """ 
@@ -166,10 +166,12 @@ class TestUtilities:
         
         left_cut = configuration['trim_left']
         right_cut = configuration['trim_right']  
+        df = utilities.set_column_and_index_name(input_dataframe)
+        #chiamo il metodo con i valori invertiti, così controllo che restituisca un exception
         with pytest.raises(ValueError):
-            utilities.trim_dataframe(input_dataframe, left_cut, right_cut)
+            utilities.trim_dataframe(df, right_cut, left_cut)
         
-    def test_t1_lenght_and_t2_lenght_are_the_same(self, input_dataframe, configuration):
+    def test_t1_lenght_and_t2_lenght_are_the_same(self,  configuration):
         """ 
         this test verifies that as many values of t1 are created as t2
     
@@ -182,7 +184,26 @@ class TestUtilities:
         """
         
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        assert len(t1) == len(t2)    
+        assert len(t1) == len(t2)   
+        
+    def test_t1_values_are_increasing_monotone(self):
+        """ 
+        This test tests that t1 values are increasing monotone 
+    
+        GIVEN: 
+            an arbitrary value for the starting point to calculate t1 
+        WHEN: 
+            i call the method create_t1_and_t2_values 
+        THEN: 
+            t1[i] < t1[i+1]
+        """
+        t1_min = 1
+        t1_shift = 0.1
+        n_windows = 5
+        beta = 3
+        t1, t2 = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
+        assert (t1[t] < t1[t+1] for t in t1)
+        
         
     def test_t1_values_are_smaller_than_t2_ones(self, input_dataframe, configuration):
         """ 
@@ -198,8 +219,8 @@ class TestUtilities:
         
         # generate ti values
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        for t in t1:
-            assert t1[t] < t2[t]
+        #for t in t1:
+        assert (t1 < t2).any()
             
     def test_t2_values_are_never_bigger_than_time_values_in_dataframe(self, input_dataframe, configuration):
         """ 
@@ -229,43 +250,10 @@ class TestUtilities:
         """
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
-        for t in t1_index:
-            assert t1_index[t] >= 0 
+        #for t in t1_index:
+        assert (t1_index >= 0).any() 
         #There is no need to create the same test for t2, as we have previously verified that t2 > t1
             
-   
-            
-    def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_integer(self, input_dataframe, configuration):
-        """ 
-        In this test I verify that the enumeration of t1 are integer 
-    
-        GIVEN: 
-            t1 values and a dataframe
-        WHEN: 
-            i call create_index_for_t1_and_t2
-        THEN: 
-            the function returned integer number values numpy arrays for t1_index
-        """
-        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
-        for t in t1_index:
-            assert  isinstance(t1_index[t], int) 
-            
-    def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_integer(self, input_dataframe, configuration):
-        """ 
-        In this test I verify that the enumeration of t1 are integer 
-    
-        GIVEN: 
-            t1 values and a dataframe
-        WHEN: 
-            i call create_index_for_t1_and_t2
-        THEN: 
-            the function returned integer number values numpy arrays for t1_index
-        """
-        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
-        for t in t2_index:
-            assert  isinstance(t2_index[t], int) 
             
     def test_create_index_for_t1_and_t2_have_the_same_lenght(self, input_dataframe, configuration):
         """ 
@@ -295,7 +283,8 @@ class TestUtilities:
             e_n always bigger than zero
         """
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        assert (utilities.calculate_en(t1, t2)).any() > 0
+        en = utilities.calculate_en(t1, t2)
+        assert ((en).any() > 0)
         
         
         

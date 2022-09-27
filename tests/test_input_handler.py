@@ -3,6 +3,7 @@ from os.path import dirname, join
 from picts_gif.input_handler import InputHandler
 import pandas as pd
 
+
 class TestInputHandler:
 
     # Test if the file is read properly
@@ -114,6 +115,27 @@ class TestInputHandler:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.columns.name == 'Temperature (K)'
+        
+    def test_normalized_transient_check_current_value(self):
+        """ 
+        This test tests that the method normalized_transient correctly
+        throws exception if bad current value are passed as input
+    
+        GIVEN: 
+            a dataframe to be normalized and bad data of dark current and light current 
+        WHEN: 
+            I call normalized_transient(...)
+        THEN: 
+            if bad current values are passed as input, method trows a ValueError
+        """
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
+        dict_path = join(dirname(__file__), 'test_data/dictionary.json')
+        bad_dict_path = join(dirname(__file__), 'test_data/bad_dictionary.json')
+       
+        
+        df = InputHandler.read_transients_from_tdms(test_file_path, dict_path)
+        with pytest.raises(ValueError):
+            InputHandler.normalized_transient(df,bad_dict_path)
 
     def test_transient_dataframe_columns_and_picts_datafram__index_have_same_lenght(self):
         """ 

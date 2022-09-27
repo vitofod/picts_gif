@@ -1,0 +1,18 @@
+{   
+    "index_name" : "Time (s)",
+    "column_name" : "Temperature (K)",
+    "gain"  : 1e8,
+    "i_light_left" : -6e-5,
+    "i_light_right": -1.5e-3,
+    "i_dark_left": 3.75e-2,
+    "i_dark_right": 0.036,
+    "set_zero": 200,
+    "t1_min" : 1e-3,
+    "t1_shift" : 0.0002,
+    "beta": 3,
+    "n_windows" : 8,
+    "t_avg" : 50,
+    "trim_left" : 105.260,
+    "trim_right" : 270.770
+}
+
