@@ -1,94 +1,114 @@
-#import re
-#import numpy as np
-#from timeit import repeat
-import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
+from picts_gif.input_handler import InputHandler
 
-#from picts_gif.input_handler import InputHandler
+#There are many ways to implement animations in matplotlib.
+#I have chosen to use classes. 
+# The constructor initializes the class by setting the parameters of the plot and those that will animate it.
+
+#The ani_init method fires every time the animation starts. 
+#Since the animation can repeat itself, ani_init can be called multiple times.
+
+#The ani_update method is called on each new frame.
+#With each invocation, the state of the animation changes.
+
+#The save method is used to save a .gif file of the animation.
+
 
 class PictsSpectrumPlot:
+    
+    """
+  PictsSpectrumPlot handles animation of PICTS spectrum graphs.
+  
+  .............................
+  Attributes:
+  
+  fig            : `~matplotlib.figure.Figure`
+                  The figure object used to get needed events, such as draw or resize.
+        
+  ax             : ~matplotlib.axes.Axes
+                  The axes object used to get needed events, such as set axis in a graph.
+  
+  df             : pd.Dataframe
+                  Normalized current transient dataframe from InputHandler
+
+  interval       : float
+                  Parameter, delay between frames in ms 
+  """
+    
     def __init__(self, fig, ax, df, interval = 0.01): #interval = delay between frames
         self.ax = ax
         self.df = df
         self.ax.set_title("Picts Spectrum")
-        self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval)
-        self.number_of_columns = df.shape[1] #num colonne
-        self.number_of_points_per_line = df.shape[0]  #num righe
-        self.column_index = 0   #verrà incrementato ogni volta che plottiamo una curva
-        self.current_column = df.columns[self.column_index]   #tiene conto della colonna in cui ci troviamo
-        self.point_index = 0  # verrà incrementato ogni qual volta che plottiamo un punto di una curva
-        self.lines = [] # lista di Line2D
+        
+        #FunctionAnimation is the Matplotlib class around which everything revolves. 
+        #For a better understanding of its use, please refer to the relevant documentation
+        #https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+        self.func_anim = FuncAnimation(
+            fig,
+            self.ani_update,         #ani_update and ani_init they are part of the architecture with which FuncAnimation is built
+            init_func=self.ani_init , #I recommend the detailed documentation at the link for greater understanding
+            interval=interval        #total number of images that make up the animation. Coincides with the number of transients to plot.
+            )
+        
+        self.number_of_columns = df.shape[1]                     #number of columns in dataframe
+        self.number_of_points_per_line = df.shape[0]             #number of rows in dataframe
+        self.column_index = 0                                    #it will be incremented every time we plot a curve
+        self.current_column = df.columns[self.column_index]      #takes into account the column we are in
+        self.point_index = 0                                     #it will be incremented every time we plot a point of a curve
+                                                
         self.scatter = None
         self.count=0
         
-        for i in range(self.number_of_columns):
+        self.lines = []                                          #lista di Line2D
+        for i in range(self.number_of_columns):                  #Here it is initialized with two lists that will contain the x, y elements of the axes,
+                                                                 #and a label that will be updated at each frame
             self.lines += self.ax.plot([], [], label = f"Rate window: {self.df.columns[i]}")
 
-    def save(self, output_dir):
-        output_file = output_dir.joinpath("spectrum.gif")
-        print(f"Saving animation in {output_file}")
-        self.func_anim.save(output_file,writer=PillowWriter(fps=50) )
-
+    #Each animation starts and ends by calling this method. 
+    #When repeat = True, the method is called at the end of each animation to start it all over again
     def ani_init(self): 
-        # get max of df
+        # I define some parameters for the plot
+        #These settings allow me to automatically center the figure in the graph, regardless of the transient data
         self.ax.set_xlim(self.df.index.min() - self.df.index.min()/10, self.df.index.max() + self.df.index.max()/10)
         self.ax.set_ylim(self.df.min().min() - self.df.min().min()/10, self.df.max().max() + self.df.max().max()/10)
+        
+        #lines is the iterable that carries information between the various methods. It is a list that at each cycle is filled with all the information to be plotted
         return self.lines
 
+    #for each frame of the animation the class calls this method
     def ani_update(self, frame):
         
-        # termination condition
+        # if the following conditions are met, the animation is finished:
+        #If I am at the last column of the dataframe and if the number of points I have plotted is greater than or equal to the number of points I had to plot
         if self.current_column == self.df.columns[-1] and self.point_index >= self.number_of_points_per_line:
             self.func_anim.event_source.stop()
             return self.lines
 
-        # curva = colonna
+        
 
-        # verifichiamo che point_index non sia maggiore del numero di punti per linea
-        if self.point_index >= self.number_of_points_per_line:  # vede a che punto sono nella colonna. Se finisce la colonna
-            self.point_index = 0                                # risetta l'indice a zero
-            self.column_index += 1                              # passa alla colonna successiva
-            self.current_column = self.df.columns[self.column_index]   # continuando a tenere conto di dove si trova
+        # we have to verify that point_index is not greater than the number of points per line
+        if self.point_index >= self.number_of_points_per_line:  # see where I am in the column. If the column ends
+            self.point_index = 0                                # resets the index to zero
+            self.column_index += 1                              # move to the next column
+            self.current_column = self.df.columns[self.column_index]   # continuing to keep track of where it is
 
 
-        # estraggo i dati che voglio plottare (aggiungo un punto in più ogni volta)
+        # I extract the data I want to plot (I add an extra point each time)
         column_data_y = self.df[self.current_column].iloc[:self.point_index]
         column_data_x = self.df.index[:self.point_index]
         
        
 
-        # aggiungo un punto alla curva corrente che corrisponde alla colonna
+        # I add a point to the current graph
         self.lines[self.column_index].set_data(column_data_x, column_data_y)
 
         self.point_index += 1
 
-        #if self.scatter is not None:
-        #  self.scatter.remove()
-        #self.scatter = self.ax.scatter(x=self.current_column, y=column_data_y.iloc[self.point_index])
-
-        #try:
-        #    print(f"frame: {frame} - column: {self.current_column} - point: {self.point_index} y size: {len(column_data_y)} - y_value: {column_data_y.iloc[-1]}")
-        #except Exception as e:
-        #    pass
-        
-        #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
-        #ax.set_xlim(0, frame/10)
-
-
-
         return self.lines
+    
+    #save the animation in a .gif file
+def save(self, output_dir):
+        output_file = output_dir.joinpath("spectrum.gif")
+        print(f"Saving animation in {output_file}")
+        self.func_anim.save(output_file,writer=PillowWriter(fps=50) )
             
-
-""" if __name__ == "__main__":
-    
-    path = '/home/vito/picts_gif/tests/test_data/data.tdms'
-    dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
-    #data = InputHandler.read_transients_from_pkl("/home/vito/picts_gif/tests/test_data/test.pkl")
-    data = InputHandler.read_transients_from_tdms(path, dic_path)
-    normalized_transient = InputHandler.normalized_transient(data, dic_path)
-    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, dic_path)
-    
-    
-    fig, ax = plt.subplots(1,1)
-    hp = PictsSpectrumPlot(fig=fig, ax=ax, df=picts)
-    plt.show() """

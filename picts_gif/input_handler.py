@@ -133,7 +133,7 @@ class InputHandler:
         # and equal to one in the moments of light, I need to know the values ​​of the dark current and the light current. 
         #The signal is noisy, so it's best to average over a given range
         
-        #recover the values ​​of the dark current and light current
+        #recover the values ​​of the dark current and light current from dictionary
         i_dark_range = [configuration['i_dark_left'], configuration['i_dark_right']]
         i_light_range = [configuration['i_light_left'], configuration['i_light_right'] ]
 
@@ -222,28 +222,3 @@ class InputHandler:
         
         return  picts, gates
 
-
-if __name__ == "__main__":
-    
-    path = '/home/vito/picts_gif/tests/test_data/data.tdms'
-    dic_path = '/home/vito/picts_gif/tests/test_data/dictionary.json'
-    
-    
-    transient = InputHandler.read_transients_from_tdms(path, dic_path)
-    normalized_transient = InputHandler.normalized_transient(transient, dic_path)
-    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, dic_path)
-     
-    #print('data',transient.head())
-    #print('transient',normalized_transient.head())
-    #print('picts',picts.head())
-    #print('gates',gates)
-    picts.plot()
-    plt.show()
-    #transient[90.768].plot()
-    #plt.show()
-    #normalized_transient[90.768].plot()
-    #plt.show()
-
-   
-
-# TODO risistemare InputHandler che gestisca anche altri tipi di input. Separare preprocessamento dei dati in un' altra classe

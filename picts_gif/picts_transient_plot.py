@@ -1,115 +1,144 @@
-#import re
 import numpy as np
-#from timeit import repeat
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
-#import matplotlib.patches as patches
-
 from picts_gif.input_handler import InputHandler
-#from picts_gif import utilities
+
+
+
+#There are many ways to implement animations in matplotlib.
+#I have chosen to use classes. 
+# The constructor initializes the class by setting the parameters of the plot and those that will animate it.
+
+#The ani_init method fires every time the animation starts. 
+#Since the animation can repeat itself, ani_init can be called multiple times.
+
+#The ani_update method is called on each new frame.
+#With each invocation, the state of the animation changes.
+
+#The save method is used to save a .gif file of the animation.
 
 class PictsTransientPlot:
-    #costruttore
+    """
+  PictsTransientPlot handles animation of PICTS transient graphs.
+  
+  .............................
+  Attributes:
+  
+  fig            : `~matplotlib.figure.Figure`
+                  The figure object used to get needed events, such as draw or resize.
+        
+  ax             : ~matplotlib.axes.Axes
+                  The axes object used to get needed events, such as set axis in a graph.
+  
+  transient_df   : pd.Dataframe
+                  Normalized current transient dataframe from InputHandler
+  
+  gates_list     : np.array
+                  Float array with (t1, t2) rate window interval
+  
+  interval       : float
+                  Parameter, delay between frames in ms 
+  """
+  
+    
     def __init__(self, fig, ax, transient_df, gates_list, interval = 0.01): #interval = delay between frames in ms
         self.ax = ax
-        self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval, repeat=True, frames=len(transient_df.columns))
+        
+        #FunctionAnimation is the Matplotlib class around which everything revolves. 
+        #For a better understanding of its use, please refer to the relevant documentation
+        #https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+        self.func_anim = FuncAnimation(
+          fig, 
+          self.ani_update,                    #ani_update and ani_init they are part of the architecture with which FuncAnimation is built. 
+                                              #I recommend the detailed documentation at the link for greater understanding
+          init_func=self.ani_init , 
+          interval=interval, 
+          repeat=True,                        #when the animation is finished, it restart from beginning
+          frames=len(transient_df.columns)    #total number of images that make up the animation. Coincides with the number of transients to plot.
+          )
+        
         self.transient_df = transient_df
-        
         self.gates_list = gates_list
-        self.gate_index = -1
-        self.column_index = 0   #verrà incrementato ogni volta che plottiamo una curva
-        self.current_column = self.transient_df.columns[self.column_index]   # tiene conto della colonna in cui ci troviamo
+        self.gate_index = -1                 #It starts from -1 as a way to avoid the "index out of bounds" exception.
+        self.column_index = 0                #verrà incrementato ogni volta che plottiamo una curva
+                                             #it will be incremented every time a transient is inserted in the frame list. 
+                                             # That way I can always know where the animation is
+        self.current_column = self.transient_df.columns[self.column_index]   # Returns the name of the column that is about to be plotted
         
         
-        
+        #Lines is a list of the elements that are iterated in the animation. 
+        #Here it is initialized with two lists that will contain the x, y elements of the axes, and a title that will be updated at each frame
         self.lines = []
         self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
+        
         self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        
+        #Scatter and Arrow are two graphical elements that I initialize and that will subsequently be defined and inserted overlapping the graph
         self.scatter = None  
         self.arrow = None
  
-
-    def save(self, output_dir):
-        output_file = output_dir.joinpath("transient.gif")
-        print(f"Saving animation in {output_file}")
-        self.func_anim.save(output_file, writer=PillowWriter(fps=50) )
-
-
-    #parte sempre da qui e ricomincia sempre da qui
+    #Each animation starts and ends by calling this method. 
+    #When repeat = True, the method is called at the end of each animation to start it all over again
     def ani_init(self): 
 
-        # get max of df
-        self.ax.set_xlim(0, 0.01)
-        self.ax.set_ylim(-0.05, 0.2)
+        # I define some parameters for the plot
+        #These settings allow me to automatically center the figure in the graph, regardless of the transient data
+        self.ax.set_xlim(-0.01, 0.03)
+        self.ax.set_ylim(-0.01, self.transient_df.max().max() - self.transient_df.max().max()*0.8)
+        
+        #column_index must be re-initialized because if the graph restarts, all parameters must return to their starting values
         self.column_index = 0 
 
+        #every time the graph restarts, it means that I am showing a new rate window, 
+        # so I have to advance with the values ​​(t1, t2)
         self.gate_index += 1
         gate = self.gates_list[self.gate_index]
-        #print("Current gate:", gate, "self.gate_index", self.gate_index)
-
+        
+        #We have to imagine the dataframe with the index coinciding with the x axis, 
+        #and each column constitutes a y axis (an axis for each temperature value at which the current was measured)
+        #I check which column I am plotting
         self.current_column = self.transient_df.columns[self.column_index]
+        
+        #I add to the plot some vertical dashed lines that will indicate the interval of the rate window
         self.ax.axvline(x = gate[0], label = f't1 - {round(gate[0], 2)}', color=self.colors[self.gate_index], linestyle="dashed")
         self.ax.axvline(x = gate[1], label = f't2 - {round(gate[1], 2)}', color=self.colors[self.gate_index], linestyle="dashed")
 
         column_name = self.transient_df.columns[self.column_index]
 
-      
-
-        """
-       .iloc[] is primarily integer position based (from 0 to length-1 of the axis), but may also be used with a boolean array.
-            Allowed inputs are:
-            An integer, e.g. 5.
-            A list or array of integers, e.g. [4, 3, 0].
-            A slice object with ints, e.g. 1:7.
-            A boolean array. 
-        """
-        
-        #ax.scatter(x= gate[0], y=self.transient_df[self.current_column].iloc[self.t1_loc[self.gate_index]])
-        #ax.scatter(x= gate[1], y=self.transient_df[self.current_column].iloc[self.t2_loc[self.gate_index]])
-
-        #ax.scatter(x= gate[0], y= 0.02)
-        #ax.scatter(x= gate[1], y=0.02)
-
-
-        #self.ax.legend()
-
+        #lines is the iterable that carries information between the various methods. It is a list that at each cycle is filled with all the information to be plotted
         return self.lines
 
-    #per ogni frame dell'animazione richiama questa
+    #for each frame of the animation the class calls this method
     def ani_update(self, frame):
-      #  print(f"frame: {frame} - current_column: {self.current_column}")
-        
-        # termination condition
+      
+        # if the following conditions are met, the animation is finished:
+        #if all the pairs (t1, t2) have been plotted and if I am at the last column of the dataframe
         if self.gate_index == len(self.gates_list) - 1 and self.current_column == self.transient_df.columns[-1]:
             self.func_anim.event_source.stop()
-            return self.lines
+            return self.lines     #I always return the list lines
 
+        #set the title of the frame
         self.ax.set_title(f"Temperature: {self.current_column} K")
-
-        # curva = colonna
-
-        # self.lines = [colonna 1, colonna 2, ..., colonna 3]       
-        # Ad ogni frame si accede all'interno della lista self.lines all'oggetto corrispondente e si chiama su quell'oggetto il metodo set_data 
-        # settando i dati corrispondenti alla colonna giusta.
-
-        # Possiamo usare i seguenti attributi di classe: self.transient_df, self.column_index, self.current_column
-
-        # estraggo i dati che voglio plottare (aggiungo un punto in più ogni volta)
+            
+        #Each frame is accessed internally, from the self.lines list, 
+        #to the corresponding elements and the set_data method is called on that object. 
+        #This updates the current frame
         column_data_y = self.transient_df[self.current_column]
         column_data_x = self.transient_df.index
-   
         self.lines[0].set_data(column_data_x, column_data_y)
 
-        # handle scatter points
-        gate = self.gates_list[self.gate_index] # x1 e x2, corrispondono al gate i-esimo, che non cambia per tutta la durata dell'animazione
-        indexes = self.transient_df.index.get_indexer(gate, method = 'backfill') # si accede ai corrispondenti indici della colonna Time
-        ys = column_data_y.iloc[indexes] # si usano questi due indici, per accede ai due valori corrispenti nella colonna column_data_y (che cambia ad ogni frame)
+        # handle scatter and arrow points
+        gate = self.gates_list[self.gate_index] # (t1,t2), correspond to the i-th gate, which does not change for the entire duration of the animation
+        indexes = self.transient_df.index.get_indexer(gate, method = 'backfill') # the corresponding indexes of the Temperature column are accessed
+        ys = column_data_y.iloc[indexes] 
+        #Basically I created the pair of points (t1, y1) and (t2, y2). This I need to make two rods appear inside the graph
 
+        #If at each frame I did not cancel the previous scatters, the graph would be overcrowded with points
         if self.scatter is not None:
           self.scatter.remove()
         self.scatter = self.ax.scatter(x=gate, y=ys)
 
-        # Arrow annotation
+        # Same thing for the arrow element
         if self.arrow is not None:
           self.arrow.remove()
         self.arrow = self.ax.annotate( 
@@ -117,37 +146,23 @@ class PictsTransientPlot:
                                       xy = (0,ys.iloc[0]),
                                       xytext = (0,ys.iloc[1]),
                                       arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
-                                      )
+                                      ) #This annotation is a trick to make a moving arrow appear in the graph. 
+                                        #It is understood first by looking at the gif than by explaining it
 
         
 
-        #self.point_index += 1
-        #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
-        #ax.set_xlim(0, frame/10)
+        #When I have plotted all the data in a column, I can increment the position of the column I was in
         if self.column_index < len(self.transient_df.columns) - 1:
           self.column_index += 1
-
         self.current_column =  self.transient_df.columns[self.column_index]
 
-        return self.lines
+        #I return the updated lines
+        return self.lines 
+      
+    #Save the gif  
+    def save(self, output_dir):
+      output_file = output_dir.joinpath("transient.gif")
+      print(f"Saving animation in {output_file}")
+      self.func_anim.save(output_file, writer=PillowWriter(fps=50) )
             
 
-if __name__ == "__main__":
-    
-    conf = "/home/vito/picts_gif/tests/test_data/dictionary.json"
-    data = InputHandler.read_transients_from_tdms("/home/vito/picts_gif/tests/test_data/data.tdms", conf )
-    norm_transient = InputHandler.normalized_transient(data,conf)
-    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(data, conf)
-    #print(transient.shape)
-    #print(transient.iloc[463:470, :])
-    #print(transient.iloc[0:1])
-
-    fig, ax = plt.subplots(1,1)
-    hp = PictsTransientPlot(fig=fig, ax=ax, transient_df=norm_transient, gates_list=gates)
-    plt.show() 
-
-    #print(gates)
-    #y_index = transient.columns.get_indexer([temp], method = 'backfill')[0] for temp in transient.columns[0]])
-    #print(indexes)
-
-    #TODO sistemare l'errore IndexError: index 499 is out of bounds for axis 0 with size 499
