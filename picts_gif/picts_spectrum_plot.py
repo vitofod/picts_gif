@@ -1,17 +1,17 @@
-import re
-import numpy as np
-from timeit import repeat
+#import re
+#import numpy as np
+#from timeit import repeat
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, PillowWriter
 
-from picts_gif.input_handler import InputHandler
+#from picts_gif.input_handler import InputHandler
 
 class PictsSpectrumPlot:
     def __init__(self, fig, ax, df, interval = 0.01): #interval = delay between frames
         self.ax = ax
+        self.df = df
         self.ax.set_title("Picts Spectrum")
         self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval)
-        self.df = df
         self.number_of_columns = df.shape[1] #num colonne
         self.number_of_points_per_line = df.shape[0]  #num righe
         self.column_index = 0   #verrà incrementato ogni volta che plottiamo una curva
@@ -19,9 +19,15 @@ class PictsSpectrumPlot:
         self.point_index = 0  # verrà incrementato ogni qual volta che plottiamo un punto di una curva
         self.lines = [] # lista di Line2D
         self.scatter = None
+        self.count=0
         
         for i in range(self.number_of_columns):
             self.lines += self.ax.plot([], [], label = f"Rate window: {self.df.columns[i]}")
+
+    def save(self, output_dir):
+        output_file = output_dir.joinpath("spectrum.gif")
+        print(f"Saving animation in {output_file}")
+        self.func_anim.save(output_file,writer=PillowWriter(fps=50) )
 
     def ani_init(self): 
         # get max of df
@@ -31,6 +37,11 @@ class PictsSpectrumPlot:
 
     def ani_update(self, frame):
         
+        # termination condition
+        if self.current_column == self.df.columns[-1] and self.point_index >= self.number_of_points_per_line:
+            self.func_anim.event_source.stop()
+            return self.lines
+
         # curva = colonna
 
         # verifichiamo che point_index non sia maggiore del numero di punti per linea
@@ -62,6 +73,9 @@ class PictsSpectrumPlot:
         
         #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
         #ax.set_xlim(0, frame/10)
+
+
+
         return self.lines
             
 

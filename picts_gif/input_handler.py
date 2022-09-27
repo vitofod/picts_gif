@@ -8,8 +8,6 @@ class InputHandler:
     '''
     This static class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input
     '''
-    #def __init__(self):
-     #   pass
     
     @staticmethod
     def read_transients_from_tdms(
@@ -138,13 +136,13 @@ class InputHandler:
         #recover the values ​​of the dark current and light current
         i_dark_range = [configuration['i_dark_left'], configuration['i_dark_right']]
         i_light_range = [configuration['i_light_left'], configuration['i_light_right'] ]
-        
+
         #the value of the light and dark currents are the averages of the values ​​of the currents in the assigned ranges
         i_light = transient.loc[i_light_range[0]:i_light_range[1]].mean()
         i_dark = transient.loc[i_dark_range[0]:i_dark_range[1]].mean()
-       
+
         #check if light current and dark current have proper values.        
-        if (i_light <= i_dark):  raise ValueError('In normalized_transient: i_light smaller than i_dark.')
+        if (i_light <= i_dark).any(): raise ValueError('In normalized_transient: i_light smaller than i_dark.')
         
         transient_norm = (transient-i_dark)/(i_light-i_dark)  #normalizing in this way allows you to set the dark current to zero and the light current to one
        

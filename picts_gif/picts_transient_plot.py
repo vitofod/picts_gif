@@ -1,42 +1,43 @@
-import re
+#import re
 import numpy as np
-from timeit import repeat
+#from timeit import repeat
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import matplotlib.patches as patches
+from matplotlib.animation import FuncAnimation, PillowWriter
+#import matplotlib.patches as patches
 
 from picts_gif.input_handler import InputHandler
-from picts_gif import utilities
+#from picts_gif import utilities
 
 class PictsTransientPlot:
-  """
-  This class generate the animation of the PICTS spectrum
-  
-  
-  
-  
-  
-  
-  
-  """
-
-
+    #costruttore
     def __init__(self, fig, ax, transient_df, gates_list, interval = 0.01): #interval = delay between frames in ms
         self.ax = ax
-        self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval, repeat=True, frames=len(transient_df.columns)-1)
+        self.func_anim = FuncAnimation(fig, self.ani_update, init_func=self.ani_init , interval=interval, repeat=True, frames=len(transient_df.columns))
         self.transient_df = transient_df
+        
         self.gates_list = gates_list
         self.gate_index = -1
         self.column_index = 0   #verrà incrementato ogni volta che plottiamo una curva
         self.current_column = self.transient_df.columns[self.column_index]   # tiene conto della colonna in cui ci troviamo
+        
+        
+        
         self.lines = []
         self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
         self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         self.scatter = None  
         self.arrow = None
-      #TODO calcolare tutti gli indici nell'init
  
+
+    def save(self, output_dir):
+        output_file = output_dir.joinpath("transient.gif")
+        print(f"Saving animation in {output_file}")
+        self.func_anim.save(output_file, writer=PillowWriter(fps=50) )
+
+
+    #parte sempre da qui e ricomincia sempre da qui
     def ani_init(self): 
+
         # get max of df
         self.ax.set_xlim(0, 0.01)
         self.ax.set_ylim(-0.05, 0.2)
@@ -74,8 +75,14 @@ class PictsTransientPlot:
 
         return self.lines
 
+    #per ogni frame dell'animazione richiama questa
     def ani_update(self, frame):
       #  print(f"frame: {frame} - current_column: {self.current_column}")
+        
+        # termination condition
+        if self.gate_index == len(self.gates_list) - 1 and self.current_column == self.transient_df.columns[-1]:
+            self.func_anim.event_source.stop()
+            return self.lines
 
         self.ax.set_title(f"Temperature: {self.current_column} K")
 
@@ -117,8 +124,11 @@ class PictsTransientPlot:
         #self.point_index += 1
         #self.lines[0].set_data(self.xdata[0:frame], self.ydata[0:frame])
         #ax.set_xlim(0, frame/10)
-        self.column_index += 1
+        if self.column_index < len(self.transient_df.columns) - 1:
+          self.column_index += 1
+
         self.current_column =  self.transient_df.columns[self.column_index]
+
         return self.lines
             
 

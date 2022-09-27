@@ -9,14 +9,17 @@ from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
 from picts_gif.picts_transient_plot import PictsTransientPlot
 
 """
-* Sistemare i tests
-* Scrivere il main con una CLI (argparse)
+* Sistemare i tests   FATTO
+* Code coverage (pytest-cov) https://pytest-cov.readthedocs.io/en/latest/ pytest --cov=myproj tests/ FATTO
+* Scrivere il main con una CLI (argparse) FATTO
+* Terminare l'animazione senza eccezione FATTO
+
+
 * Completare il README (come si lancia il main del software)
 * Provare a installare il software from scratch
-* Terminare l'animazione senza eccezione
+
 * Esportare il plot in .gif / .mp4 (installare pillow oppure imagemagik)
 * Testare il salvataggio del plot
-* Code coverage (pytest-cov) https://pytest-cov.readthedocs.io/en/latest/ pytest --cov=myproj tests/
 * Il terzo plot (optional)
 """
 
