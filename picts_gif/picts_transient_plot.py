@@ -9,6 +9,16 @@ from picts_gif.input_handler import InputHandler
 from picts_gif import utilities
 
 class PictsTransientPlot:
+  """
+  This class generate the animation of the PICTS spectrum
+  
+  
+  
+  
+  
+  
+  
+  """
 
 
     def __init__(self, fig, ax, transient_df, gates_list, interval = 0.01): #interval = delay between frames in ms
