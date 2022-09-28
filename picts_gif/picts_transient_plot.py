@@ -54,7 +54,8 @@ class PictsTransientPlot:
           init_func=self.ani_init , 
           interval=interval, 
           repeat=True,                        #when the animation is finished, it restart from beginning
-          frames=len(transient_df.columns)    #total number of images that make up the animation. Coincides with the number of transients to plot.
+          frames=len(transient_df.columns),   #total number of images that make up the animation. Coincides with the number of transients to plot.
+          save_count = 1500                   #This index defines the upper limit of the saved frames when calling the method to save the animation
           )
         
         self.transient_df = transient_df
@@ -85,6 +86,8 @@ class PictsTransientPlot:
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
         self.ax.set_xlim(-0.01, 0.03)
         self.ax.set_ylim(-0.01, self.transient_df.max().max() - self.transient_df.max().max()*0.8)
+        self.ax.set_xlabel('Time (s)')
+        self.ax.set_ylabel('Normalized Current (a.u)')
         
         #column_index must be re-initialized because if the graph restarts, all parameters must return to their starting values
         self.column_index = 0 
@@ -146,7 +149,7 @@ class PictsTransientPlot:
                                       xy = (0,ys.iloc[0]),
                                       xytext = (0,ys.iloc[1]),
                                       arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
-                                      ) #This annotation is a trick to make a moving arrow appear in the graph. 
+                                      ) #This options are a trick to make a moving arrow appear in the graph. 
                                         #It is understood first by looking at the gif than by explaining it
 
         
@@ -163,6 +166,6 @@ class PictsTransientPlot:
     def save(self, output_dir):
       output_file = output_dir.joinpath("transient.gif")
       print(f"Saving animation in {output_file}")
-      self.func_anim.save(output_file, writer=PillowWriter(fps=50) )
+      self.func_anim.save(output_file, writer= PillowWriter(fps=30))
             
 

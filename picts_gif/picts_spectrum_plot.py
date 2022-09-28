@@ -47,7 +47,8 @@ class PictsSpectrumPlot:
             fig,
             self.ani_update,         #ani_update and ani_init they are part of the architecture with which FuncAnimation is built
             init_func=self.ani_init , #I recommend the detailed documentation at the link for greater understanding
-            interval=interval        #total number of images that make up the animation. Coincides with the number of transients to plot.
+            interval=interval,        #total number of images that make up the animation. Coincides with the number of transients to plot.
+            save_count = 1500         #This index defines the upper limit of the saved frames when calling the method to save the animation
             )
         
         self.number_of_columns = df.shape[1]                     #number of columns in dataframe
@@ -71,6 +72,8 @@ class PictsSpectrumPlot:
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
         self.ax.set_xlim(self.df.index.min() - self.df.index.min()/10, self.df.index.max() + self.df.index.max()/10)
         self.ax.set_ylim(self.df.min().min() - self.df.min().min()/10, self.df.max().max() + self.df.max().max()/10)
+        self.ax.set_xlabel('Temperature (K)')
+        self.ax.set_ylabel('PICTS signal (a.u.)')
         
         #lines is the iterable that carries information between the various methods. It is a list that at each cycle is filled with all the information to be plotted
         return self.lines
@@ -107,7 +110,7 @@ class PictsSpectrumPlot:
         return self.lines
     
     #save the animation in a .gif file
-def save(self, output_dir):
+    def save(self, output_dir):
         output_file = output_dir.joinpath("spectrum.gif")
         print(f"Saving animation in {output_file}")
         self.func_anim.save(output_file,writer=PillowWriter(fps=50) )
