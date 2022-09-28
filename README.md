@@ -4,16 +4,15 @@
 Picts_gif is a tool that allows you to create animated graphics and saved it as gif. It is a project born for my need to create animated data to be projected during the discussion of the thesis, but it was written in a modular way so as to be easily modifiable and adaptable to every need. What you need is data that can be transformed into pandas Dataframes and dictionaries with specific information about the data. In my specific case, the raw data used were collected from Photo-Induced Current Transient Spectroscopy (PICTS) measurements, a spectroscopic technique used in the study of defects in the crystal lattice of semiconductor solids. The data are nothing more than measurements of photo-induced current transients as a function of temperature.
 
 ## Prerequisites
-You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem.
-
+You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem. 
 ## Installation
 ### On Linux
-Deve fare gitClone
-Create anaconda virtual environment with `conda env create --file environment.yml`
+After doing the repository clone:
+create anaconda virtual environment with 
 ```
 $ conda env create --file environment.yml
 ```
-Install the library 'picts_gif' with `pip install .`
+Install the library 'picts_gif' with 
 ```
 $ pip install .
 ```
@@ -50,23 +49,85 @@ picts_gif_____
 ```
 In picts_gif you will find the codes described above, while in tests you will find, in addition to the test_data directory, the codes for testing. In test_data you will find the input files accompanied by the dictionaries. 
 
-## API reference
-
-### input_handler.py
-input_handler.py contains the static class InputHandler that handles data input. It contains 4 methods, two of which are specific for reading raw data and two for preprocessing and cleaning the data.
-```
-read_transients_from_tdms(path, 
-                          configuration_path, 
-                          data_group_name = 'Measured Data'
-                        ):
-```
-
-
-
 ## Usage
+The software works via a Command Line Interface (CLI).
+To get started, navigate to the folder where the main.py file is located and type
+```
+python main.py --help
+```
+The output is shown below.
+```
+usage: main.py [-h] -p PATH -d DICT [-pl {transient,spectrum,all}] [-i INTERVAL] [-o OUTPUT_DIR] [--show] [--no-show]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH, --path PATH  The path to the tdms file. E.g.: --path /home/user/desktop/data.tdms
+  -d DICT, --dict DICT  The path to the dictionary json file. E.g.: --dict /home/user/desktop/dict.json
+  -pl {transient,spectrum,all}, --plot {transient,spectrum,all}
+                        Specify what to animate. E.g.: --plot transient -> for the transient plot. E.g.: --plot spectrum -> for the spectrtum plot. E.g. : --plot all -> for plot
+                        both
+  -i INTERVAL, --interval INTERVAL
+                        The interval defines the speed of the animation. It is the time, expressed in milliseconds, between one frame and another. Animations already have a
+                        default value of 0.01ms E.g.: --interval 1 -> you have set the interval between one frame and another to one millisecond
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        The output directory where the gif is stored. If you do not enter an output directory, the animation will not be saved
+  --show                To show the animation digit: --show
+  --no-show             If you don't want to see the animation digit: --no-show
+```
+So, for the program to start, you must first define the location of the input files. Next, you have to choose what you want to be plottedanimated, for example the transient, 
+the spectrum or both. If you want, you can define the animation execution speed through the 'interval' parameter, which defines the distance, in milliseconds, between one frame and another. If you want to save the animation, you must expressly define the position in which you want to save it, otherwise the file will not be saved. you can also decide whether to display the animation or not.
+
+## Tutorial
+### Show the animation of the current transient 
+In this tutorial we will see how to start the animation of the current transient data trend. 
+We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
+We just want the animation to appear on screen, we don't want to save it.
+From the terminal, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+```
+python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot transient --show
+```
+This is what you should see
+![A current transient animation](transient.gif)
+
+
+
+### Picts spectrum animation
+In this tutorial we will see how to start the animation of the picts spectrum. 
+We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
+We just want the animation to appear on screen, we don't want to save it.
+From the terminal, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+```
+python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot spectrum --show
+```
+This is what you should see
+![A current transient animation](spectrum.gif)
+
+### Picts spectrum and transient animation
+In this tutorial we will see how to start the animation of the picts spectrum and transient at the same time. 
+We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
+We just want the animation to appear on screen, we don't want to save it.
+From the terminal, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+```
+python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot all --show
+```
+What do you see? Right!
+
+### Save the gif of a PICTS spectrum
+In this tutorial we will see how to save, without showing, the animation of the picts spectrum. 
+We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
+We just want to save the animation, we don't want it to appear on screen.
+From the terminal, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+```
+python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot spectrum -o */picts_gif/picts_gif/output/ --no-show
+```
+Now go look in the directory you chose as output if you find anything.
 
 ## Testing
 All tests were done with `pytest`. The testing files all start with the name `test_ *` and are located in `tests` directory.
+So you have to change directori to
+```
+wherever_you_have_saved_the_repository/picts_gif/tests
+```
 You can test all the code with:
 ```
 pytest tests -v
@@ -79,17 +140,12 @@ If you want to test specific part of test group by name of the test function, yo
 ```
 pytest -v -k "test_name_of_the_test"
 ```
-
-
-## Tutorial
-### Current transient animation
-In this tutorial we will see how to animate the trend of a transient as a function of temperature. The final animation is shown in the figure. All that is needed is the file path to the directory where the data files are contained.
-
-### Picts spectrum animation
-In this tutorial we will see how to animate a PICTS spectrum. The final animation is shown in the figure. All that is needed is the file path to the directory where the data files are contained.
-
-### Picts spectrum and current transient animation
-In this tutorial we will see how to animate a PICTS spectrum. The final animation is shown in the figure. All that is needed is the file path to the directory where the data files are contained.
+Or you can go to the next level with:
+```
+pytest --cov=picts_gif 
+```
+In the test folder you will see a new directory called cov_report_html. Double click. To understand what you are looking at, 
+refer to the documentation for [coverage](https://coverage.readthedocs.io/en/6.4.4/) python library. 
 
 ## Extra
 ### What a PICTS experiment is: a short description to better understand the code
