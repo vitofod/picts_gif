@@ -1,5 +1,6 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
 from picts_gif.input_handler import InputHandler
+import pandas as pd
 
 #There are many ways to implement animations in matplotlib.
 #I have chosen to use classes. 
@@ -36,6 +37,8 @@ class PictsSpectrumPlot:
   """
     
     def __init__(self, fig, ax, df, interval = 0.01): #interval = delay between frames
+        if not isinstance(df, pd.DataFrame): raise TypeError("Problem with input dataframe")
+        if not isinstance(interval, float): raise TypeError("Interval: not a number")
         self.ax = ax
         self.df = df
         self.ax.set_title("Picts Spectrum")

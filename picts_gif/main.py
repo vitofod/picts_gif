@@ -30,6 +30,7 @@ class PlotConfig(Enum):
         return self.value
 
 def main(args): 
+    print(args)
     '''
     This methods takes the args list as a parameter. 
     In args there are all the options that the user can enter. 
@@ -42,9 +43,7 @@ def main(args):
           List with the user input information
     '''
     #Both the tdms file and the accompanying dictionary with parameters are passed as args from the terminal
-    path = args.path
-    config_path = args.dict
-
+   
     #I manage the inputs
     data = InputHandler.read_transients_from_tdms(args.path, args.dict)
     normalized_transient = InputHandler.normalized_transient(data, args.dict)

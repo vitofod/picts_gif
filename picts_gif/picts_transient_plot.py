@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 from picts_gif.input_handler import InputHandler
-
+import pandas as pd
 
 
 #There are many ways to implement animations in matplotlib.
@@ -42,12 +42,16 @@ class PictsTransientPlot:
   
     
     def __init__(self, fig, ax, transient_df, gates_list, interval = 0.01): #interval = delay between frames in ms
-        self.ax = ax
+      if not isinstance(transient_df, pd.DataFrame): raise TypeError("Problem with input dataframe")
+      if not isinstance(gates_list, np.ndarray): raise TypeError("Problem with gates_list array")
+      if not isinstance(interval, float): raise TypeError("Interval: not a number")
+      
+      self.ax = ax
         
         #FunctionAnimation is the Matplotlib class around which everything revolves. 
         #For a better understanding of its use, please refer to the relevant documentation
         #https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
-        self.func_anim = FuncAnimation(
+      self.func_anim = FuncAnimation(
           fig, 
           self.ani_update,                    #ani_update and ani_init they are part of the architecture with which FuncAnimation is built. 
                                               #I recommend the detailed documentation at the link for greater understanding
@@ -58,25 +62,25 @@ class PictsTransientPlot:
           save_count = 1500                   #This index defines the upper limit of the saved frames when calling the method to save the animation
           )
         
-        self.transient_df = transient_df
-        self.gates_list = gates_list
-        self.gate_index = -1                 #It starts from -1 as a way to avoid the "index out of bounds" exception.
-        self.column_index = 0                #verrà incrementato ogni volta che plottiamo una curva
+      self.transient_df = transient_df
+      self.gates_list = gates_list
+      self.gate_index = -1                 #It starts from -1 as a way to avoid the "index out of bounds" exception.
+      self.column_index = 0                #verrà incrementato ogni volta che plottiamo una curva
                                              #it will be incremented every time a transient is inserted in the frame list. 
                                              # That way I can always know where the animation is
-        self.current_column = self.transient_df.columns[self.column_index]   # Returns the name of the column that is about to be plotted
+      self.current_column = self.transient_df.columns[self.column_index]   # Returns the name of the column that is about to be plotted
         
         
         #Lines is a list of the elements that are iterated in the animation. 
         #Here it is initialized with two lists that will contain the x, y elements of the axes, and a title that will be updated at each frame
-        self.lines = []
-        self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
+      self.lines = []
+      self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
         
-        self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+      self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         
         #Scatter and Arrow are two graphical elements that I initialize and that will subsequently be defined and inserted overlapping the graph
-        self.scatter = None  
-        self.arrow = None
+      self.scatter = None  
+      self.arrow = None
  
     #Each animation starts and ends by calling this method. 
     #When repeat = True, the method is called at the end of each animation to start it all over again
@@ -109,6 +113,7 @@ class PictsTransientPlot:
         column_name = self.transient_df.columns[self.column_index]
 
         #lines is the iterable that carries information between the various methods. It is a list that at each cycle is filled with all the information to be plotted
+        print(type(self.lines))
         return self.lines
 
     #for each frame of the animation the class calls this method
