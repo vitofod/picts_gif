@@ -8,7 +8,7 @@ Picts_gif is a tool that allows you to create animated graphics and saved it as 
 You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The code of this project was written in Python 3.9.1.. The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem. 
 
 ### On Linux
-[Clone](https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories) the repository on your machine. Than
+[Clone](https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories) the repository on your machine. Then
 create anaconda virtual environment with 
 ```
 $ conda env create --file environment.yml
