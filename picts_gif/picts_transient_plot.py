@@ -1,3 +1,4 @@
+from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
@@ -41,7 +42,7 @@ class PictsTransientPlot:
   """
   
     
-    def __init__(self, fig, ax, transient_df, gates_list, interval = 0.01): #interval = delay between frames in ms
+    def __init__(self, fig, ax, transient_df, gates_list, interval = 1.): #interval = delay between frames in ms
       if not isinstance(transient_df, pd.DataFrame): raise TypeError("Problem with input dataframe")
       if not isinstance(gates_list, np.ndarray): raise TypeError("Problem with gates_list array")
       if not isinstance(interval, float): raise TypeError("Interval: not a number")
@@ -88,8 +89,8 @@ class PictsTransientPlot:
 
         # I define some parameters for the plot
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
-        self.ax.set_xlim(-0.01, 0.03)
-        self.ax.set_ylim(-0.01, self.transient_df.max().max() - self.transient_df.max().max()*0.8)
+        self.ax.set_xlim(self.transient_df.index.min(), self.transient_df.index.max() - self.transient_df.index.max()/2 )
+        self.ax.set_ylim(self.transient_df.index.min(), self.transient_df.max().max() - self.transient_df.max().max()*0.7)
         self.ax.set_xlabel('Time (s)')
         self.ax.set_ylabel('Normalized Current (a.u)')
         
@@ -113,7 +114,7 @@ class PictsTransientPlot:
         column_name = self.transient_df.columns[self.column_index]
 
         #lines is the iterable that carries information between the various methods. It is a list that at each cycle is filled with all the information to be plotted
-        print(type(self.lines))
+        
         return self.lines
 
     #for each frame of the animation the class calls this method
@@ -144,15 +145,15 @@ class PictsTransientPlot:
         #If at each frame I did not cancel the previous scatters, the graph would be overcrowded with points
         if self.scatter is not None:
           self.scatter.remove()
-        self.scatter = self.ax.scatter(x=gate, y=ys)
+        self.scatter = self.ax.scatter(x=gate, y=ys, color = 'red', s=25)
 
         # Same thing for the arrow element
         if self.arrow is not None:
           self.arrow.remove()
         self.arrow = self.ax.annotate( 
                                       text="", 
-                                      xy = (0,ys.iloc[0]),
-                                      xytext = (0,ys.iloc[1]),
+                                      xy = (-0.01,ys.iloc[0]),
+                                      xytext = (-0.01,ys.iloc[1]),
                                       arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
                                       ) #This options are a trick to make a moving arrow appear in the graph. 
                                         #It is understood first by looking at the gif than by explaining it

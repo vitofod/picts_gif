@@ -36,7 +36,7 @@ class PictsSpectrumPlot:
                   Parameter, delay between frames in ms 
   """
     
-    def __init__(self, fig, ax, df, interval = 0.01): #interval = delay between frames
+    def __init__(self, fig, ax, df, interval = 1.): #interval = delay between frames
         if not isinstance(df, pd.DataFrame): raise TypeError("Problem with input dataframe")
         if not isinstance(interval, float): raise TypeError("Interval: not a number")
         self.ax = ax
@@ -116,5 +116,5 @@ class PictsSpectrumPlot:
     def save(self, output_dir):
         output_file = output_dir.joinpath("spectrum.gif")
         print(f"Saving animation in {output_file}")
-        self.func_anim.save(output_file,writer=PillowWriter(fps=50) )
+        self.func_anim.save(output_file,writer=PillowWriter(fps=30) )
             

@@ -30,7 +30,6 @@ class PlotConfig(Enum):
         return self.value
 
 def main(args): 
-    print(args)
     '''
     This methods takes the args list as a parameter. 
     In args there are all the options that the user can enter. 
@@ -55,22 +54,23 @@ def main(args):
     #I can handle different types of inputs. 
     #I might want to start the transient animation only, or the PICTS spectrum animation, 
     #or both at the same time. These are three simple cases that I have implemented.
+    interval = float(args.interval)
     if args.plot == PlotConfig.transient:
         fig, ax = plt.subplots(1,1, figsize=(5,5))
         plots.append( 
-            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, gates_list=gates)
+            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, gates_list=gates, interval= interval)
         )
 
     elif args.plot == PlotConfig.spectrum:
         fig, ax = plt.subplots(1,1, figsize=(5,5))
         plots.append( 
-            PictsSpectrumPlot(fig, ax=ax, df=picts)
+            PictsSpectrumPlot(fig, ax=ax, df=picts, interval=interval)
         )
     elif args.plot == PlotConfig.all:
-        fig, ax = plt.subplots(1,2, figsize=(5,5))
+        fig, ax = plt.subplots(1,2, figsize=(10,4))
         plots += [
-            PictsSpectrumPlot(fig, ax=ax[0], df=picts),
-            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates)
+            PictsSpectrumPlot(fig, ax=ax[0], df=picts, interval=interval),
+            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates, interval=interval)
         ]
 
     #By default I don't show the animation but I just save it.
@@ -127,8 +127,8 @@ if __name__ == "__main__":
         "-i", 
         "--interval", 
         type=float, 
-        required=False,           #I am not required to view animations. I can also automatically save them to a file and only watch them later
-        default=None,   #If not specified, both transient and spectrum animation is performed
+        required=False,           
+        default=1.,                 
         help='''The interval defines the speed of the animation. It is the time, 
                 expressed in milliseconds, between one frame and another. \n
                 Animations already have a default value of 0.01ms \n
@@ -163,6 +163,7 @@ if __name__ == "__main__":
     
     #by default the animation is not shown
     parser.set_defaults(show=False)
+   
     
     args = parser.parse_args()
     main(args)
