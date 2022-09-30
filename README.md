@@ -156,16 +156,12 @@ refer to the documentation for [coverage](https://coverage.readthedocs.io/en/6.4
 ### What a PICTS experiment is: a short description to better understand the code
 Photo-induced transient current spectroscopy (PICTS) is a technique for investigating deep level (crystalline defects that act as recombination centers for charge carriers), and is part of the larger family of transient spectroscopy techniques. Solar cells or radiation detectors work by converting the radiation incident on a sensitive crystal into electron-hole pairs. In the presence of a potential difference at the ends of the crystal, the pairs separate and move towards the electrodes. In the presence of deep levels, however, the charge carriers are trapped and converted in a non-radiative manner, making sure that the signal present at the ends of the device is only a fraction of that generated. Knowing the mechanisms underlying these recombination phenomena, allows to increase the efficiency of the devices. The idea of ​​the PICTS technique is to fill these traps with charge carriers through a photo-induced current. By stopping the external excitation, the photoinduced current will drop sharply to dark levels, while the rate of thermal emission of charge carriers by the traps can be described as [see 'The Electrical Characterization of Semiconductors: Majority Carriers and Electron States', P. Blood, J. W. Orton, Academic Pr, 1992, cap. 7] 
 
-$
-e_{i}(T) = \gamma T^2 \sigma_{ia} exp\left (- \frac{E_{ia}}{K_bT}\right )
-$
+$e_{i}(T) = \gamma T^2 \sigma_{ia} exp\left (- \frac{E_{ia}}{K_bT}\right )$
 
 where i = n for electron and i = p for hole, $σ_{ia}$ = (g0/g1)σ∞ is the so called electron/hole apparent capture cross section, with g0 and g1 respectively empty trap energy degeneracy and occupied trap energy degeneracy; T is the temperature, $E_{ia} is the apparent trap activation energy, γ is a constant. 
 At the same time it is possible to describe the current transient as [see Tapiero et al., Journal of Applied Physics 64, 4006 (1988)]
 
-$
- I(t) = \alpha qV \mu \tau n_t(0) e_i e^{-e_it}
-$
+$I(t) = \alpha qV \mu \tau n_t(0) e_i e^{-e_it}$
 
 where q is the elementary charge, V the applied voltage, $n_t(0)$ the initial trap carrier density, t the time, $e_i$ the thermal emission rate and μτ the so called mobility-lifetime. $\alpha$ is a geometrical parameter due to the shape of the elettrical contacts.
 The PICTS spectrum involves the concept of "rate window".  The rate windows is an arbitrarily chosen time interval from where we go to measure the difference in the current value. Referring to Figure, the istant t = 0 coincide with the LED turned off.
