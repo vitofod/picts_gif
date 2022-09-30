@@ -5,6 +5,6 @@ omit =
     */plotting_v2.py
     */plotting_v3.py
 
-#[report]
-#exclude_lines = 
-#    if __name__ == .__main__.:
+[report]
+exclude_lines = 
+    if __name__ == .__main__.:
