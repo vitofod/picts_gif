@@ -136,6 +136,27 @@ class TestInputHandler:
         df = InputHandler.read_transients_from_tdms(test_file_path, dict_path)
         with pytest.raises(ValueError):
             InputHandler.normalized_transient(df,bad_dict_path)
+            
+    def test_normalized_transient_return_a_normalized_transient_current(self):
+        """ 
+        This test tests that returned dataframe from normalized_transient is
+        properly normalized
+    
+        GIVEN: 
+            a dataframe to be normalized 
+        WHEN: 
+            I call normalized_transient(...)
+        THEN: 
+            the current transient is normalized
+        """
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
+        dict_path = join(dirname(__file__), 'test_data/dictionary.json')
+        
+       
+        
+        df = InputHandler.read_transients_from_tdms(test_file_path, dict_path)
+        normalized_df = InputHandler.normalized_transient(df,dict_path)        
+        assert ([normalized_df[i].index.max().max() == pytest.approx(1, abs=1e-1)] for i in normalized_df.columns)
 
     def test_transient_dataframe_columns_and_picts_datafram__index_have_same_lenght(self):
         """ 

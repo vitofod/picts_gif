@@ -84,7 +84,7 @@ class TestSpectrumPlot:
         """
         fig, ax = plt.subplots()
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
-        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
         
@@ -92,5 +92,35 @@ class TestSpectrumPlot:
         returned = pt.ani_update(frame=1)
          
         assert isinstance(returned, list)
+        
+    def test_in_ani_update_stop_and_return_a_list_if_it_finished_to_plot_the_spectrum(self):
+        """ 
+        This test tests that ani_update method stops and return a list
+        when at the same time the current column is the last column of the dataframe 
+        and all the index point are plotted
+    
+        GIVEN: 
+           ani_update method
+        WHEN: 
+            at the same time the current column is the last column of the dataframe 
+            and all the index point are plotted
+        THEN: 
+            an empty list have to be return 
+        """
+        fig, ax = plt.subplots()
+        test_file_path = join(dirname(__file__), 'test_data/data.tdms')
+        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
+        df = utilities.set_column_and_index_name(df)
+        
+        pt = PictsSpectrumPlot(fig, ax, df)
+        #ai = PictsSpectrumPlot.ani_update(pt, frame=1)
+        pt.current_column = pt.df.columns[-1]
+        pt.point_index = pt.number_of_points_per_line
+        returned = pt.ani_update(frame=1)
+         
+        assert bool(returned)
+        
+       
         
        
