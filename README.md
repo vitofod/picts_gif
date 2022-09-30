@@ -41,14 +41,15 @@ input_handler.py
 input_handler.py manages the input files. In my case the input files are [tdms](https://www.ni.com/it-it/support/documentation/supplemental/06/the-ni-tdms-file-format.html), an extension used by LabVIEW language. The purpose of the InputHandler class in input_handler.py is to open raw data from a certain format, preprocess them and return a dataframe (or more than one) of it. To increase code readability and versatility, the utilities.py library has been created, which contains a set of methods that perform specific tasks. At this point, animations can be created from the dataframe(s). Each animation is seen as a class of its own. In this repository you can find two plotting class that i have created, picts_spettrum_plot.py and pict_transient_plot.py, but the idea is that you can create complex animations as you like by joining as many of these classes as you want, following the structure of the class I created. The picts_spettrum_plot.py file manages the animation of the PICTS spectra graphs, while picts_transient_plot.py manages the animations of the current transients as a function of temperature. If you're wondering what I'm talking about, take a look further down to the 'EXTRA' section. The main.py file is actually the "executable" of our code. Through a Command Line Interface it is able to manage inputs and outputs, providing a certain variety of options. You can create single animations, create multiple animations at the same time, save the created animations. Animations are saved as gifs.
 Following the installation of the project, as explained in the previous paragraph, you will find a directory on your disk called 'picts_gif'. The structure of the various sub-folders is as follows (I omit the directories created automatically and those ignored):
 ```
-picts_gif_____
-              |_pict_gif__(code)
+picts_gif_______pict_gif__(code)
+              |
+              |_data_(data)
               |
               |_tests_____(test_code)
                         |
-                        |_test_data__(data)
+                        |_test_data__(data for test)
 ```
-In 'picts_gif' you will find the codes described above, while in 'tests' you will find, in addition to the test_data directory, the codes for testing. In 'test_data' you will find the input data files accompanied by the dictionaries. 
+In 'picts_gif' you will find the codes described above, while in 'tests' you will find, in addition to the test_data directory, the codes for testing. In 'test_data' you will find the input data used as "test data" files accompanied by the dictionaries. In data you will find other tdms data with their dictionaries.
 
 ## Usage
 Data analysis of PICTS spectra is a long and complex job and is not the goal of this project. The data that will be used are raw data as they were acquired, but will be accompanied by a json file in which all the fundamental parameters to reconstruct the output signal are saved. Before continuing with the reading, it is strongly recommended to take a few minutes to read the 'EXTRA' paragraph where the PICTS measurement technique is broadly explained.
@@ -142,13 +143,12 @@ If you want to start specific part of test, group by name of the test function, 
 ```
 $ pytest -v -k "test_name_of_the_test"
 ```
-Or you can go to the next level with:
+Or you can go to the next level by run the script start_test.sh:
 ```
-$ pytest --cov=picts_gif 
+$ ./start_test.sh
 ```
 
-INSERIRE LO SCRIPT .SH
-In the test folder you will see a new directory called cov_report_html. Double click. To understand what you are looking at, 
+In the test folder you will see a new directory called `cov_report_html`. Double click. To understand what you are looking at, 
 refer to the documentation for [coverage](https://coverage.readthedocs.io/en/6.4.4/) python library. 
 
 
