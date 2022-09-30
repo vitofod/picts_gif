@@ -174,9 +174,7 @@ The PICTS spectrum involves the concept of "rate window".  The rate windows is a
 
 Once the time instant in which the transition to thermal emission occurs has been defined in the electrical transient (we can call this instant t0), we choose two successive instants t1 > t0 and t2 > t1 and express the PICTS signal as the difference in the value of the currents in these two instants:
 
-$
-S(T; t_1, t_2) = i(t_1) - i(t_2)
-$
+$S(T; t_1, t_2) = i(t_1) - i(t_2)$
 
 If there was no thermal emission from the traps, the current difference between the two fixed points would simply be a constant as the decay of the transient would not be perturbed by the emptying of the traps. If a trap is present, however, we expect the thermal emission to reach a maximum at a certain temperature $T_m$, and therefore also the difference in the PICTS signal will be characterized by a maximum exactly at the point where the thermal emission from part of the trap is maximum. Mathematically, we can write the maximum of
 S(T ; t1, t2) as
