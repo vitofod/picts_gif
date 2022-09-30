@@ -181,22 +181,16 @@ $
 If there was no thermal emission from the traps, the current difference between the two fixed points would simply be a constant as the decay of the transient would not be perturbed by the emptying of the traps. If a trap is present, however, we expect the thermal emission to reach a maximum at a certain temperature $T_m$, and therefore also the difference in the PICTS signal will be characterized by a maximum exactly at the point where the thermal emission from part of the trap is maximum. Mathematically, we can write the maximum of
 S(T ; t1, t2) as
 
-$
- \frac{dS}{dT} = \frac{dS}{de_n}\frac{de_n}{dT} = 0
-$
+$\frac{dS}{dT} = \frac{dS}{de_n}\frac{de_n}{dT} = 0$
 
 and by considering the equations above, the solution brings to
 
-$
-  e_n (t_1 -t_2) = \ln{\frac{1 - e_nt_2}{1 - e_nt_1}}
-$
+$e_n (t_1 -t_2) = \ln{\frac{1 - e_nt_2}{1 - e_nt_1}}$
 
 This is a transcendental equation and must be solved numerically via software analysis. Ideally, considering a semiconductor in which there is only one trap state, and chosen two time instants t1 and t2, therefore, we obtain a function S(T ; t1, t2) which will show a peak at
 a certain temperature $T_m$. By imposing the derivative of S(T ; t1, t2) to zero, we obtain the transcendental equation that tells us what is the value of the thermal emission rate $e_i$ we are scanning given t1 and t2. By changing values of t1 and t2, that is, by changing rate window, we obtain a curve S′(T ; t1′, t2′) identical to the previous one but shifted, since now the value of $e_n$ and $T_m$ differ from the previous one. Therefore, by choosing a collection of values t1 and t2 it is possible to obtain a collection of values $e_i$ as a function of $T_m$, and by plotting that in an Arrhenius form we have
 
-$
-\ln{\left({T_m}^2/e_n(T_m)\right)} = \gamma \sigma + \frac{E_a}{K_bT_m}
-$
+$\ln{\left({T_m}^2/e_n(T_m)\right)} = \gamma \sigma + \frac{E_a}{K_bT_m}$
 
 from which we can extract the values ​​of the activation energy and the capture cross section of the trap(s). 
 In a data analysis it is important to correctly identify the instant $t_0$ in which the thermal emission by the traps begins. In addition, to make sure that the shape of the spectrum signal depends only on the chosen values $t_1$ and $t_2$, the signal must be normalized.
