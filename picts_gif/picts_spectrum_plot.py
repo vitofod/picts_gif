@@ -1,4 +1,5 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
+import matplotlib.pyplot as plt
 from picts_gif.input_handler import InputHandler
 import pandas as pd
 
@@ -36,7 +37,13 @@ class PictsSpectrumPlot:
                   Parameter, delay between frames in ms 
   """
     
-    def __init__(self, fig, ax, df, interval = 1.): #interval = delay between frames
+    def __init__(
+        self, 
+        fig : plt.figure, 
+        ax : plt.axes, 
+        df : pd.DataFrame, 
+        interval : float = 1.          #interval = delay between frames
+        ):
         if not isinstance(df, pd.DataFrame): raise TypeError("Problem with input dataframe")
         if not isinstance(interval, float): raise TypeError("Interval: not a number")
         self.ax = ax
@@ -70,11 +77,17 @@ class PictsSpectrumPlot:
 
     #Each animation starts and ends by calling this method. 
     #When repeat = True, the method is called at the end of each animation to start it all over again
-    def ani_init(self): 
+    def ani_init(self) -> list: 
         # I define some parameters for the plot
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
-        self.ax.set_xlim(self.df.index.min() - self.df.index.min()/10, self.df.index.max() + self.df.index.max()/10)
-        self.ax.set_ylim(self.df.min().min() - self.df.min().min()/10, self.df.max().max() + self.df.max().max()/10)
+        self.ax.set_xlim(
+            self.df.index.min() - self.df.index.min()/10, 
+            self.df.index.max() + self.df.index.max()/10
+            )
+        self.ax.set_ylim(
+            self.df.min().min() - self.df.min().min()/10, 
+            self.df.max().max() + self.df.max().max()/10
+            )
         self.ax.set_xlabel('Temperature (K)')
         self.ax.set_ylabel('PICTS signal (a.u.)')
         
@@ -82,7 +95,7 @@ class PictsSpectrumPlot:
         return self.lines
 
     #for each frame of the animation the class calls this method
-    def ani_update(self, frame):
+    def ani_update(self, frame) -> list:
         
         # if the following conditions are met, the animation is finished:
         #If I am at the last column of the dataframe and if the number of points I have plotted is greater than or equal to the number of points I had to plot

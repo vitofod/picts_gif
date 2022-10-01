@@ -1,27 +1,10 @@
 
-from typing import Sequence
 import pytest
 from picts_gif.main import PlotConfig
-from enum import Enum
 import argparse
 from picts_gif import main
 from os.path import dirname, join
-from argparse import Namespace
-import matplotlib.pyplot as plt
 
-
-@pytest.fixture
-def input_bad_path_option():
-    return '-p /home/bad/path -d ' + join(dirname(__file__), 'test_data/dictionary.json') + ' --no-show'
-
-@pytest.fixture
-def main_test():
-    pass
-
-#return tdms file path
-@pytest.fixture
-def test_file_path():
-    return join(dirname(__file__), 'test_data/data.tdms')
 
 class TestMain:
     

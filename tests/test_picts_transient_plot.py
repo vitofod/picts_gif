@@ -5,7 +5,6 @@ from picts_gif.picts_transient_plot import PictsTransientPlot
 from picts_gif.input_handler import InputHandler
 import numpy as np
 import pandas as pd
-import json
 from picts_gif import utilities
   
   
@@ -83,7 +82,7 @@ class TestTransientPlot:
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
         picts, gate = InputHandler.from_transient_to_PICTS_spectrum(df, dic_path)
-        pt = PictsTransientPlot(fig, ax, df, gate)
+        pt = PictsTransientPlot(fig, ax, dic_path, df, gate)
         returned = pt.ani_init()
          
         assert isinstance(returned, list)
@@ -105,7 +104,7 @@ class TestTransientPlot:
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
         picts, gate = InputHandler.from_transient_to_PICTS_spectrum(df, dic_path)
-        pt = PictsTransientPlot(fig, ax, df, gate)
+        pt = PictsTransientPlot(fig, ax, dic_path, df, gate)
         returned = pt.ani_update(frame=1)
          
         assert isinstance(returned, list)

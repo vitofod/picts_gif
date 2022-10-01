@@ -93,8 +93,9 @@ class InputHandler:
         '''
         #This method can be useful if I want to pass a dataframe with the .pkl format
          if '.pkl' in path: 
-            return pd.read_pickle(path,'bz2')   
-
+            return pd.read_pickle(path,'bz2') 
+           
+    @staticmethod
     def normalized_transient(
        transient : pd.DataFrame, 
        configuration_path : str

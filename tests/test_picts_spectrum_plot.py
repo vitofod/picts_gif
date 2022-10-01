@@ -2,10 +2,8 @@ import pytest
 import matplotlib.pyplot as plt
 from os.path import dirname, join
 from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
-from picts_gif.input_handler import InputHandler
 import numpy as np
 import pandas as pd
-import json
 from picts_gif import utilities
   
   
@@ -62,10 +60,10 @@ class TestSpectrumPlot:
         """
         fig, ax = plt.subplots()
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
-        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
-        picts, gate = InputHandler.from_transient_to_PICTS_spectrum(df, dic_path)
+    
         pt = PictsSpectrumPlot(fig, ax, df)
         returned = pt.ani_init()
          
@@ -109,7 +107,7 @@ class TestSpectrumPlot:
         """
         fig, ax = plt.subplots()
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
-        dic_path = join(dirname(__file__), 'test_data/dictionary.json')
+        
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
         

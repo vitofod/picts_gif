@@ -41,7 +41,7 @@ class TestInputHandler:
         """
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-        #se non lancia una eccezione queste due righe fanno fallire il test
+        #if it does not throw an exception these two lines cause the test to fail
         with pytest.raises(KeyError):
             InputHandler.read_transients_from_tdms(test_file_path,dic_path, 'invalid_data_group_name')
         
@@ -76,7 +76,7 @@ class TestInputHandler:
         THEN: 
             method returns a dataframe
         """
-        # ottengo in il path relativo del file, indipendentemente da dove è installato il progetto il software
+        #I get in the relative path of the file, regardless of where the project is installed the software
         test_file_path = join(dirname(__file__), 'test_data/test.pkl')
 
         df = InputHandler.read_transients_from_pkl(test_file_path)

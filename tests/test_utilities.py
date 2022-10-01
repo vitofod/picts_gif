@@ -3,7 +3,7 @@ from os.path import dirname, join
 from picts_gif import utilities
 import pandas as pd
 import json
-from picts_gif.input_handler import InputHandler
+
 
 
  #return dictionary file path

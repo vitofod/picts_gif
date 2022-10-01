@@ -2,7 +2,7 @@ from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
-from picts_gif.input_handler import InputHandler
+import json
 import pandas as pd
 
 
@@ -30,6 +30,9 @@ class PictsTransientPlot:
         
   ax             : ~matplotlib.axes.Axes
                   The axes object used to get needed events, such as set axis in a graph.
+                  
+  ax             : str
+                  The path to the json file.
   
   transient_df   : pd.Dataframe
                   Normalized current transient dataframe from InputHandler
@@ -42,10 +45,23 @@ class PictsTransientPlot:
   """
   
     
-    def __init__(self, fig, ax, transient_df, gates_list, interval = 1.): #interval = delay between frames in ms
+    def __init__(
+      self, 
+      fig : plt.figure, 
+      ax : plt.axes, 
+      conf_file_path : str, 
+      transient_df : pd.DataFrame, 
+      gates_list : np.array, 
+      interval : float = 1.          #interval = delay between frames in ms
+      ): 
+      
+      #open the json parameters file
+      with open(conf_file_path, "r") as pfile:
+         self.configuration = json.load(pfile)
+         
       if not isinstance(transient_df, pd.DataFrame): raise TypeError("Problem with input dataframe")
       if not isinstance(gates_list, np.ndarray): raise TypeError("Problem with gates_list array")
-      if not isinstance(interval, float): raise TypeError("Interval: not a number")
+      if not isinstance(interval, float): raise TypeError("Problem with the interval parameter")
       
       self.ax = ax
         
@@ -65,32 +81,41 @@ class PictsTransientPlot:
         
       self.transient_df = transient_df
       self.gates_list = gates_list
-      self.gate_index = -1                 #It starts from -1 as a way to avoid the "index out of bounds" exception.
-      self.column_index = 0                #verrà incrementato ogni volta che plottiamo una curva
-                                             #it will be incremented every time a transient is inserted in the frame list. 
-                                             # That way I can always know where the animation is
+      self.gate_index = -1                    #It starts from -1 as a way to avoid the "index out of bounds" exception.
+      self.column_index = 0                   #it will be incremented every time a transient is inserted in the frame list. 
+                                              #In this way I can always know where i am in the dataframe
+                                             
       self.current_column = self.transient_df.columns[self.column_index]   # Returns the name of the column that is about to be plotted
         
         
-        #Lines is a list of the elements that are iterated in the animation. 
-        #Here it is initialized with two lists that will contain the x, y elements of the axes, and a title that will be updated at each frame
+      #Lines is a list of the elements that are iterated in the animation. 
+      #Here it is initialized with two lists that will contain the x, y elements of the axes, and a title that will be updated at each frame
       self.lines = []
       self.lines += self.ax.plot([], [], label = f"Temperature: {self.transient_df.columns[self.column_index]}")
         
       self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         
-        #Scatter and Arrow are two graphical elements that I initialize and that will subsequently be defined and inserted overlapping the graph
+      #Scatter and Arrow are two graphical elements that I initialize and that will subsequently be defined and inserted overlapping the graph
       self.scatter = None  
       self.arrow = None
  
     #Each animation starts and ends by calling this method. 
     #When repeat = True, the method is called at the end of each animation to start it all over again
-    def ani_init(self): 
+    def ani_init(self) -> list: 
 
         # I define some parameters for the plot
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
-        self.ax.set_xlim(self.transient_df.index.min(), self.transient_df.index.max() - self.transient_df.index.max()/2 )
-        self.ax.set_ylim(self.transient_df.index.min(), self.transient_df.max().max() - self.transient_df.max().max()*0.7)
+        t_init = self.configuration['t1_min']
+        beta = self.configuration['beta']
+        n_windows = self.configuration['n_windows']
+        self.ax.set_xlim(
+          -0.015, 
+          t_init + beta*t_init*n_windows
+          )
+        self.ax.set_ylim(
+          self.transient_df.index.min(), 
+          self.transient_df.max().max() - 0.1
+          )
         self.ax.set_xlabel('Time (s)')
         self.ax.set_ylabel('Normalized Current (a.u)')
         
@@ -118,7 +143,7 @@ class PictsTransientPlot:
         return self.lines
 
     #for each frame of the animation the class calls this method
-    def ani_update(self, frame):
+    def ani_update(self, frame) -> list:
       
         # if the following conditions are met, the animation is finished:
         #if all the pairs (t1, t2) have been plotted and if I am at the last column of the dataframe
@@ -145,7 +170,7 @@ class PictsTransientPlot:
         #If at each frame I did not cancel the previous scatters, the graph would be overcrowded with points
         if self.scatter is not None:
           self.scatter.remove()
-        self.scatter = self.ax.scatter(x=gate, y=ys, color = 'red', s=25)
+        self.scatter = self.ax.scatter(x=gate, y=ys, color = 'red', s=50)
 
         # Same thing for the arrow element
         if self.arrow is not None:
@@ -155,8 +180,8 @@ class PictsTransientPlot:
                                       xy = (-0.01,ys.iloc[0]),
                                       xytext = (-0.01,ys.iloc[1]),
                                       arrowprops=dict(arrowstyle='<->', color = 'red', linewidth=2)
-                                      ) #This options are a trick to make a moving arrow appear in the graph. 
-                                        #It is understood first by looking at the gif than by explaining it
+                                      ) #This are a trick to make a moving arrow appear in the graph. 
+                                        #It is better understandable first by looking at the gif than by explaining it
 
         
 

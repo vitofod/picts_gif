@@ -281,7 +281,7 @@ def en_2gates_high_injection (
 def calculate_en (
     t1 : np.array, 
     t2 : np.array
-    ) -> np.array:
+    ) -> np.ndarray:
     '''
     Returns a numpy array with en values, starting from the rate window values. 
     .....................................................

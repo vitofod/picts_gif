@@ -2,7 +2,6 @@ import argparse
 from enum import Enum
 from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib.animation import PillowWriter
 from picts_gif.input_handler import InputHandler
 from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
 from picts_gif.picts_transient_plot import PictsTransientPlot
@@ -56,9 +55,9 @@ def main(args):
     #or both at the same time. These are three simple cases that I have implemented.
     interval = float(args.interval)
     if args.plot == PlotConfig.transient:
-        fig, ax = plt.subplots(1,1, figsize=(5,5))
+        fig, ax = plt.subplots(1,1, figsize=(5,8))
         plots.append( 
-            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, gates_list=gates, interval= interval)
+            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, conf_file_path=args.dict, gates_list=gates, interval= interval)
         )
 
     elif args.plot == PlotConfig.spectrum:
@@ -67,10 +66,10 @@ def main(args):
             PictsSpectrumPlot(fig, ax=ax, df=picts, interval=interval)
         )
     elif args.plot == PlotConfig.all:
-        fig, ax = plt.subplots(1,2, figsize=(10,4))
+        fig, ax = plt.subplots(1,2, figsize=(10,8))
         plots += [
             PictsSpectrumPlot(fig, ax=ax[0], df=picts, interval=interval),
-            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates, interval=interval)
+            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, conf_file_path=args.dict, gates_list=gates, interval=interval)
         ]
 
     #By default I don't show the animation but I just save it.
@@ -131,7 +130,7 @@ if __name__ == "__main__":
         default=1.,                 
         help='''The interval defines the speed of the animation. It is the time, 
                 expressed in milliseconds, between one frame and another. \n
-                Animations already have a default value of 0.01ms \n
+                Animations already have a default value of 1 ms \n
                 E.g.: --interval 1 -> you have set the interval between one frame and another to one millisecond
                 '''
         )
