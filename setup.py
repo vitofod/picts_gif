@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from setuptools import setup, find_packages
+
 setup( name='picts_gif',
        version='1.0.0',
        author='Vito Foderà',
@@ -8,4 +9,7 @@ setup( name='picts_gif',
        packages=find_packages(),
        package_dir={'picts_gif': 'picts_gif'},
        include_package_data=True,
+        entry_points={
+              'console_scripts': ['picts_gif_start = picts_gif.main:main']
+       },
        license='MIT')

@@ -42,7 +42,8 @@ input_handler.py
 ```
 input_handler.py manages the input files. In my case the input files are [tdms](https://www.ni.com/it-it/support/documentation/supplemental/06/the-ni-tdms-file-format.html), an extension used by LabVIEW language. The purpose of the InputHandler class in input_handler.py is to open raw data from a certain format, preprocess them and return a dataframe (or more than one) of it. To increase code readability and versatility, the utilities.py library has been created, which contains a set of methods that perform specific tasks. At this point, animations can be created from the dataframe(s). Each animation is seen as a class of its own. In this repository you can find two plotting class that i have created, picts_spettrum_plot.py and pict_transient_plot.py, but the idea is that you can create complex animations as you like by joining as many of these classes as you want, following the structure of the class I created. 
 
-The picts_spettrum_plot.py file manages the animation of the PICTS spectra graphs, while picts_transient_plot.py manages the animations of the current transients as a function of temperature. If you're wondering what I'm talking about, take a look further down to the 'EXTRA' section. The main.py file is actually the "runnable" of our code. Through a Command Line Interface it is able to manage inputs and outputs, providing a certain variety of options. You can create single animations, create multiple animations at the same time and save the created animations as a gif.
+The picts_spettrum_plot.py file manages the animation of the PICTS spectra graphs, while picts_transient_plot.py manages the animations of the current transients as a function of temperature. If you're wondering what I'm talking about, take a look further down to the 'EXTRA' section. The main.py file is actually the "executable" of our code and it is installed as an executable script called "picts_gif_start" during the installation procedure. Through a Command Line Interface it is able to manage inputs and outputs, providing a certain variety of options. You can create single animations, create multiple animations at the same time, save the created animations. Animations are saved as gifs.
+
 Following the installation of the project, as explained in the previous paragraph, you will find a directory on your disk called 'picts_gif'. The structure of the various sub-folders is as follows (I omit the directories created automatically and those ignored):
 
 ```
@@ -60,14 +61,13 @@ In 'picts_gif' you will find the codes described above, while in 'tests' you wil
 ## Usage
 Data analysis of PICTS spectra is a long and complex job and is not the goal of this project. The data that will be used are raw data as they were acquired, but will be accompanied by a json file in which all the fundamental parameters to reconstruct the output signal are saved. Before continuing with the reading, it is strongly recommended to take a few minutes to read the 'EXTRA' paragraph where the PICTS measurement technique is broadly explained.
 The software works via a Command Line Interface (CLI).
-To get started, navigate to the folder where the main.py file is located and type
+To get started, call the following script (from anywhere). Be sure that the pythn virtual environment is activated:
 ```
-python main.py --help
+picts_gif_start --help
 ```
 The output is shown below.
-
 ```
-usage: main.py [-h] -p PATH -d DICT [-pl {transient,spectrum,all}] [-i INTERVAL] [-o OUTPUT_DIR] [--show] [--no-show]
+usage: picts_gif_start [-h] -p PATH -d DICT [-pl {transient,spectrum,all}] [-i INTERVAL] [-o OUTPUT_DIR] [--show] [--no-show] 
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -97,9 +97,9 @@ Likewise, the saved gifs turn out to be very large. It is advisable, if you want
 In this tutorial we will see how to start the animation of the current transient in PICTS experiment. 
 We will use the 'data.tdms' and 'dictionary.json' files located in /wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
 We just want the animation to appear on screen, we don't want to save it.
-Open a shell, go to the directory where the main.py file is located and type (remember to replace the asterisks with the path to your files):
+Open a shell, go to the directory that contains the project's source code, activate the python virtual environment and execute:
 ```
-python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot transient --show
+$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot transient --show
 ```
 This is what you should see
 
@@ -111,9 +111,9 @@ This is what you should see
 In this tutorial we will see how to start the animation of the picts spectrum. 
 We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
 We just want the animation to appear on screen, we don't want to save it.
-From the shell, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+Open a shell, go to the directory that contains the project's source code, activate the python virtual environment and execute:
 ```
-python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot spectrum --show
+$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot spectrum --show
 ```
 This is what you should see
 
@@ -123,9 +123,9 @@ This is what you should see
 In this tutorial we will see how to start the animation of the picts spectrum and transient at the same time. 
 We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
 We just want the animation to appear on screen, we don't want to save it.
-From the shell, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+Open a shell, go to the directory that contains the project's source code, activate the python virtual environment and execute:
 ```
-python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot all --show
+$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot all --show
 ```
 What do you see? It's a little slow, isn't it? I am very sorry for that.
 
@@ -133,9 +133,9 @@ What do you see? It's a little slow, isn't it? I am very sorry for that.
 In this tutorial we will see how to save, without showing, the animation of the picts spectrum. 
 We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_you_have_saved_the_repository/picts_gif/tests/test_data.
 We just want to save the animation, we don't want it to appear on screen.
-From the terminal, go to the directory where the main.py file is located and type(remember to replace the asterisks with the path to your files):
+Open a shell, go to the directory that contains the project's source code, activate the python virtual environment and execute:
 ```
-python main.py --path */picts_gif/tests/test_data/data.tdms --dict */picts_gif/tests/test_data/dictionary.json --plot spectrum -o */picts_gif/picts_gif/output/ --no-show
+$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot spectrum -o ./output/ --no-show
 ```
 Now go look in the directory you chose as output if you find anything.
 

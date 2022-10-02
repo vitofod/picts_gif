@@ -28,67 +28,10 @@ class PlotConfig(Enum):
     def __str__(self):
         return self.value
 
-def main(args): 
+def main(): 
     '''
-    This methods takes the args list as a parameter. 
-    In args there are all the options that the user can enter. 
-    Through this information the animations are started and / or saved as gifs.
-    
-    .....................................
-    INPUT:
-    
-    args : Namespace
-          List with the user input information
-    '''
-    #Both the tdms file and the accompanying dictionary with parameters are passed as args from the terminal
    
-    #I manage the inputs
-    data = InputHandler.read_transients_from_tdms(args.path, args.dict)
-    normalized_transient = InputHandler.normalized_transient(data, args.dict)
-    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
-    
-    #I'll need it shortly
-    plots = []
-
-    #I can handle different types of inputs. 
-    #I might want to start the transient animation only, or the PICTS spectrum animation, 
-    #or both at the same time. These are three simple cases that I have implemented.
-    interval = float(args.interval)
-    if args.plot == PlotConfig.transient:
-        fig, ax = plt.subplots(1,1, figsize=(5,8))
-        plots.append( 
-            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, conf_file_path=args.dict, gates_list=gates, interval= interval)
-        )
-
-    elif args.plot == PlotConfig.spectrum:
-        fig, ax = plt.subplots(1,1, figsize=(5,5))
-        plots.append( 
-            PictsSpectrumPlot(fig, ax=ax, df=picts, interval=interval)
-        )
-    elif args.plot == PlotConfig.all:
-        fig, ax = plt.subplots(1,2, figsize=(10,8))
-        plots += [
-            PictsSpectrumPlot(fig, ax=ax[0], df=picts, interval=interval),
-            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, conf_file_path=args.dict, gates_list=gates, interval=interval)
-        ]
-
-    #By default I don't show the animation but I just save it.
-    if args.show:
-        plt.show()
-    #The destination to save the output must be entered
-    elif args.output_dir is None:
-            print("No animations will be saved.")
-    #Save the plot. I manage the creation of the destination folder
-    else:
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        for plot in plots:
-            plot.save(output_dir)
-
-    plt.close()
-
-if __name__ == "__main__":
-
+    '''
     parser = argparse.ArgumentParser()
     
     #I describe the first, the others are created with the same logic
@@ -165,4 +108,51 @@ if __name__ == "__main__":
    
     
     args = parser.parse_args()
-    main(args)
+
+    #I manage the inputs
+    data = InputHandler.read_transients_from_tdms(args.path, args.dict)
+    normalized_transient = InputHandler.normalized_transient(data, args.dict)
+    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
+
+    #I'll need it shortly
+    plots = []
+
+    #I can handle different types of inputs. 
+    #I might want to start the transient animation only, or the PICTS spectrum animation, 
+    #or both at the same time. These are three simple cases that I have implemented.
+    interval = float(args.interval)
+    if args.plot == PlotConfig.transient:
+        fig, ax = plt.subplots(1,1, figsize=(5,5))
+        plots.append( 
+            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, gates_list=gates, interval= interval)
+        )
+
+    elif args.plot == PlotConfig.spectrum:
+        fig, ax = plt.subplots(1,1, figsize=(5,5))
+        plots.append( 
+            PictsSpectrumPlot(fig, ax=ax, df=picts, interval=interval)
+        )
+    elif args.plot == PlotConfig.all:
+        fig, ax = plt.subplots(1,2, figsize=(10,4))
+        plots += [
+            PictsSpectrumPlot(fig, ax=ax[0], df=picts, interval=interval),
+            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates, interval=interval)
+        ]
+
+    #By default I don't show the animation but I just save it.
+    if args.show:
+        plt.show()
+    #The destination to save the output must be entered
+    elif args.output_dir is None:
+            print("No animations will be saved.")
+    #Save the plot. I manage the creation of the destination folder
+    else:
+        output_dir = Path(args.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for plot in plots:
+            plot.save(output_dir)
+
+    plt.close()
+
+if __name__ == "__main__":
+    main()
