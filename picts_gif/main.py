@@ -124,7 +124,7 @@ def main():
     if args.plot == PlotConfig.transient:
         fig, ax = plt.subplots(1,1, figsize=(5,5))
         plots.append( 
-            PictsTransientPlot(fig, ax=ax, transient_df=normalized_transient, gates_list=gates, interval= interval)
+            PictsTransientPlot(fig, ax=ax, conf_file_path=args.dict, transient_df=normalized_transient, gates_list=gates, interval= interval)
         )
 
     elif args.plot == PlotConfig.spectrum:
@@ -136,7 +136,7 @@ def main():
         fig, ax = plt.subplots(1,2, figsize=(10,4))
         plots += [
             PictsSpectrumPlot(fig, ax=ax[0], df=picts, interval=interval),
-            PictsTransientPlot(fig, ax=ax[1], transient_df=normalized_transient, gates_list=gates, interval=interval)
+            PictsTransientPlot(fig, ax=ax[1], conf_file_path=args.dict, transient_df=normalized_transient, gates_list=gates, interval=interval)
         ]
 
     #By default I don't show the animation but I just save it.
