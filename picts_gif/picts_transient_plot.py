@@ -104,7 +104,7 @@ class PictsTransientPlot:
     def ani_init(self) -> list: 
 
         # I define some parameters for the plot
-        #These settings allow me to automatically center the figure in the graph, regardless of the transient data
+        #These settings allow me to automatically center the figure in the graph
         t_init = self.configuration['t1_min']
         beta = self.configuration['beta']
         n_windows = self.configuration['n_windows']
@@ -114,7 +114,7 @@ class PictsTransientPlot:
           )
         self.ax.set_ylim(
           self.transient_df.index.min(), 
-          self.transient_df.max().max() - 0.1
+          self.transient_df.max().max()/2
           )
         self.ax.set_xlabel('Time (s)')
         self.ax.set_ylabel('Normalized Current (a.u)')
@@ -196,7 +196,7 @@ class PictsTransientPlot:
     #Save the gif  
     def save(self, output_dir):
       output_file = output_dir.joinpath("transient.gif")
-      print(f"Saving animation in {output_file}")
+      print(f"Saving animation {output_file}")
       self.func_anim.save(output_file, writer= PillowWriter(fps=30))
             
 

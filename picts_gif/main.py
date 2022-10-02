@@ -30,7 +30,7 @@ class PlotConfig(Enum):
 
 def main(): 
     '''
-   
+   This is the main methods. From here i manage input data from CLI. 
     '''
     parser = argparse.ArgumentParser()
     
@@ -154,5 +154,6 @@ def main():
 
     plt.close()
 
+#starting point
 if __name__ == "__main__":
     main()
