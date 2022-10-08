@@ -35,18 +35,17 @@ class InputHandler:
          ......................................................
          ......................................................
         '''
-      #open the json parameters file
+      
       with open(configuration_path, "r") as pfile:
          configuration = json.load(pfile)
          
       # Import the file with the Tdms libraries
       # Within the tdms_file object, the acquired data is found in 'Measured Data'.
       # This option is not universal, but specific to our data acquisition system.
-      
       #Becouse a problem in data acquisition software (LabVIEW) the data transient stored are inverted 
       #To have the proper data, i have to return the inverted dataframe
       data = -utilities.convert_tdms_file_to_dataframe(path, data_group_name)
-        #set column and index name
+      
       
       data = utilities.set_column_and_index_name(data)
       
@@ -74,6 +73,9 @@ class InputHandler:
        
       return data 
 
+###############################################################################################################################################################
+###############################################################################################################################################################
+
     @staticmethod
     def read_transients_from_pkl(path : str) -> pd.DataFrame : 
          '''
@@ -91,9 +93,11 @@ class InputHandler:
          ......................................................
          ......................................................
         '''
-        #This method can be useful if I want to pass a dataframe with the .pkl format
-         if '.pkl' in path: 
-            return pd.read_pickle(path,'bz2') 
+        
+         return pd.read_pickle(path,'bz2') 
+         
+###############################################################################################################################################################
+###############################################################################################################################################################
            
     @staticmethod
     def normalized_transient(
@@ -118,6 +122,10 @@ class InputHandler:
          - normalized_transient:
              a dataframe in wich are stored normalized current transient in function of temperature, 
              with time as index and temperature as columns.
+          ......................................................
+         Raises
+         - ValueError
+            If the calculated i_light value is smaller than i_dark ones.
          ......................................................
          ......................................................
         '''
@@ -125,11 +133,11 @@ class InputHandler:
         #could also be obtained without normalization (the physical parameters do not change) but the aspect 
         #of the spectrum would be more dispersive and more difficult to analyze and visualize.
         
-        #open the json parameters file
+       
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
         
-        #normalized the current transient
+       
         #To normalize the transients in order to have the value of the current equal to zero in the moments of darkness 
         # and equal to one in the moments of light, I need to know the values ​​of the dark current and the light current. 
         #The signal is noisy, so it's best to average over a given range
@@ -148,6 +156,9 @@ class InputHandler:
         transient_norm = (transient-i_dark)/(i_light-i_dark)  #normalizing in this way allows you to set the dark current to zero and the light current to one
        
         return transient_norm
+     
+###############################################################################################################################################################
+###############################################################################################################################################################
 
     @staticmethod
     def from_transient_to_PICTS_spectrum (
@@ -185,7 +196,7 @@ class InputHandler:
         '''
         
         
-        #open the json parameters file
+    
         with open(configuration_path, "r") as pfile:
             configuration = json.load(pfile)
         

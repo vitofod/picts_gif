@@ -55,7 +55,7 @@ class PictsTransientPlot:
       interval : float = 1.          #interval = delay between frames in ms
       ): 
       
-      #open the json parameters file
+      
       with open(conf_file_path, "r") as pfile:
          self.configuration = json.load(pfile)
          
@@ -102,6 +102,22 @@ class PictsTransientPlot:
     #Each animation starts and ends by calling this method. 
     #When repeat = True, the method is called at the end of each animation to start it all over again
     def ani_init(self) -> list: 
+        """
+        ani_init handles the start and the ends of each animation of PICTS transient graphs.
+        ani_init is called by the __init__ method of the PictsTransientPlot class and is passed as an attribute to matplotlib's FuncAnimation class. 
+        In ani_init the graphical elements that will accompany all the animation and the logic that allows the interruption of the animation are initialized.
+  
+       ......................................................
+         Return:
+         - lines:
+            a list of parameters through which FuncAnim creates the graphic environment of the animation   
+         ......................................................
+         REFERENCES:
+         For a better understanding of its use, please refer to the following documentation
+         - https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+         ......................................................
+         ......................................................
+        """
 
         # I define some parameters for the plot
         #These settings allow me to automatically center the figure in the graph
@@ -144,6 +160,25 @@ class PictsTransientPlot:
 
     #for each frame of the animation the class calls this method
     def ani_update(self, frame) -> list:
+        """
+        ani_update handles each frames of the animation of PICTS transient graphs.
+        ani_init is called by the __init__ method of the PictsTransientPlot class and is passed as an attribute to matplotlib's FuncAnimation class. 
+        The method is called at each frame. The first argument will be the next value in frames.
+        .............................
+        Attributes:
+        - frame:
+             The first argument will be the next value in frames
+           ......................................................
+         Return:
+         - lines:
+            a list of argument that will be the next values in frames  
+         ......................................................
+         REFERENCES:
+         For a better understanding of its use, please refer to the following documentation
+         - https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+         ......................................................
+         ......................................................
+        """
       
         # if the following conditions are met, the animation is finished:
         #if all the pairs (t1, t2) have been plotted and if I am at the last column of the dataframe
@@ -151,7 +186,7 @@ class PictsTransientPlot:
             self.func_anim.event_source.stop()
             return self.lines     #I always return the list lines
 
-        #set the title of the frame
+       
         self.ax.set_title(f"Temperature: {self.current_column} K")
             
         #Each frame is accessed internally, from the self.lines list, 
@@ -165,7 +200,7 @@ class PictsTransientPlot:
         gate = self.gates_list[self.gate_index] # (t1,t2), correspond to the i-th gate, which does not change for the entire duration of the animation
         indexes = self.transient_df.index.get_indexer(gate, method = 'backfill') # the corresponding indexes of the Temperature column are accessed
         ys = column_data_y.iloc[indexes] 
-        #Basically I created the pair of points (t1, y1) and (t2, y2). This I need to make two rods appear inside the graph
+        #Basically I created the pair of points (t1, y1) and (t2, y2). I need it to make two rods appear inside the graph
 
         #If at each frame I did not cancel the previous scatters, the graph would be overcrowded with points
         if self.scatter is not None:
@@ -193,7 +228,7 @@ class PictsTransientPlot:
         #I return the updated lines
         return self.lines 
       
-    #Save the gif  
+    
     def save(self, output_dir):
       output_file = output_dir.joinpath("transient.gif")
       print(f"Saving animation {output_file}")

@@ -13,14 +13,15 @@ def convert_tdms_file_to_dataframe(
         ......................................................
 
          Input parameters:
-         - path: 
+         - path: str
             string with file path of TDMS file
-         - data_group_name: 
+         - data_group_name: str
             the string key in wich data are stored in TDMS file. 
         
         ......................................................
          Return:
-         - dataframe in wich are stored current transient in function of temperature. 
+         - data: pd.Dataframe
+            dataframe in wich are stored current transient in function of temperature. 
          ......................................................
          REFERENCES:
          For a better understanding about tdms file format:
@@ -28,15 +29,14 @@ def convert_tdms_file_to_dataframe(
          ......................................................
          ......................................................
     '''
-    # Import the file with the Tdms libraries
+   
     tdms_file = TdmsFile.read(path)
+    
     # Within the tdms_file object, the acquired data is found in 'Measured Data'.
     # This option is not universal, but specific to our data acquisition system.
     data = tdms_file[data_group_name].as_dataframe()
     
     #info about the starting index due to the trigger
-    
-    
     #The tdms file contains current transients as a function of time and temperature. 
     #Basically there is a thermal ramp that goes from T_min to T_max, and each T_x acquires a current transient as a function of time.
     data.index = tdms_file[data_group_name].channels()[0].time_track()   #this syntax is due to the structure of the tdms files. It's a bit tricky. 
@@ -49,30 +49,39 @@ def convert_tdms_file_to_dataframe(
     data.index -= trigger
     return data
 
-def set_column_and_index_name(data : pd.DataFrame) -> pd.DataFrame:
+###############################################################################################################################################################
+###############################################################################################################################################################
+
+def set_column_and_index_name(
+    data : pd.DataFrame
+    ) -> pd.DataFrame:
     '''
     This method sets the name of index and column of a dataframe. 
         .....................................................
         ......................................................
 
          Input parameters:
-         - data: 
-            the dataframe
+         - data: pd.Dataframe
+            the input dataframe
          
         .....................................................
          Return:
-         - dataframe with column and index name setted . 
+         - data: pd.Dataframe
+            dataframe with column and index name setted. 
         ......................................................
         ......................................................
     '''
     # I arrange the labels of the columns. The acquisition system provides a standard name of the type 'wf_ <temperature value>'. 
     # For convenience, I want the name of the columns to coincide with the value of the temperature at which the current transient was measured.
    
-    data.columns = [float(temp.replace('wf_','')) for temp in data.columns] #I replace the default name with the temperature value
+    data.columns = [float(temp.replace('wf_','')) for temp in data.columns] 
     data.columns.name = 'Temperature (K)'
-    data.index.name = 'Time (s)' #Rename the index
+    data.index.name = 'Time (s)' 
      
     return data
+
+###############################################################################################################################################################
+###############################################################################################################################################################
 
 def set_current_value(
     data : pd.DataFrame, 
@@ -80,6 +89,8 @@ def set_current_value(
     ) -> float:
     '''
     This method sets the proper value of current. 
+    The current values ​​acquired by the software are those in output from an operational amplifier. 
+    Knowing the gain of the amplifier, I can set the correct current values.
         .....................................................
         ......................................................
 
@@ -91,12 +102,20 @@ def set_current_value(
         
         ......................................................
          Return:
-         - dataframe with proper current value. 
+         - data: pd.Dataframe
+            dataframe with proper current value. 
+        ......................................................
+         Raises
+         - ValueError
+            If gain value is equal or smaller than zero.
         ......................................................
         ......................................................
     '''
     if gain <= 0: raise ValueError('Gain must be > 0')
     return data/gain  
+
+###############################################################################################################################################################
+###############################################################################################################################################################
 
 def check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(
     data : pd.DataFrame, 
@@ -137,6 +156,9 @@ def check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(
         data.index -= data.iloc[:,index].diff().idxmin() 
     return data 
 
+###############################################################################################################################################################
+###############################################################################################################################################################
+
 def trim_dataframe(
     data : pd.DataFrame, 
     left_cut : int, 
@@ -160,12 +182,17 @@ def trim_dataframe(
          Return:
          - dataframe trimmed. 
         ......................................................
+         Raises
+         - ValueError
+            If left_cut index is bigger than right_cut index
+        ......................................................
         ......................................................
     '''
     if left_cut > right_cut: raise ValueError('Left index must be smaller than the right one')
     return data.loc[:,left_cut:right_cut]
     
-
+###############################################################################################################################################################
+###############################################################################################################################################################
 
 
 def create_t1_and_t2_values (
@@ -208,6 +235,9 @@ def create_t1_and_t2_values (
    
     return t1, t2
 
+###############################################################################################################################################################
+###############################################################################################################################################################
+
 def create_index_for_t1_and_t2(
     transient_norm : pd.DataFrame, 
     t1 : np.array, 
@@ -241,6 +271,9 @@ def create_index_for_t1_and_t2(
     t1_index = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t1])    
     t2_index = np.array([transient_norm.index.get_indexer([t], method = 'backfill')[0] for t in t2])    
     return t1_index, t2_index
+
+###############################################################################################################################################################
+###############################################################################################################################################################
 
 def en_2gates_high_injection (
     en : np.array, 
@@ -277,6 +310,9 @@ def en_2gates_high_injection (
     #The theory behind which the PICTS technique was developed 
     # gives us a relationship between the emission rate en and the values ​​t1 and t2 of the selected rate window
     return np.exp(en*(t2-t1)) - ( (1-en*t2)/(1-en*t1))
+
+###############################################################################################################################################################
+###############################################################################################################################################################
 
 def calculate_en (
     t1 : np.array, 

@@ -57,7 +57,7 @@ class PictsSpectrumPlot:
             fig,
             self.ani_update,         #ani_update and ani_init they are part of the architecture with which FuncAnimation is built
             init_func=self.ani_init , #I recommend the detailed documentation at the link for greater understanding
-            interval=interval,        #total number of images that make up the animation. Coincides with the number of transients to plot.
+            interval=interval,        
             save_count = 1500         #This index defines the upper limit of the saved frames when calling the method to save the animation
             )
         
@@ -78,6 +78,22 @@ class PictsSpectrumPlot:
     #Each animation starts and ends by calling this method. 
     #When repeat = True, the method is called at the end of each animation to start it all over again
     def ani_init(self) -> list: 
+        """
+        ani_init handles the start and the ends of each animation of PICTS spectrum graphs.
+        ani_init is called by the __init__ method of the PictsSpectrumPlot class and is passed as an attribute to matplotlib's FuncAnimation class. 
+         In ani_init the graphical elements that will accompany all the animation and the logic that allows the interruption of the animation are initialized.
+  
+       ......................................................
+         Return:
+         - lines:
+            a list of parameters through which FuncAnim creates the graphic environment of the animation   
+         ......................................................
+         REFERENCES:
+         For a better understanding of its use, please refer to the following documentation
+         - https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+         ......................................................
+         ......................................................
+        """
         # I define some parameters for the plot
         #These settings allow me to automatically center the figure in the graph, regardless of the transient data
         self.ax.set_xlim(
@@ -96,7 +112,25 @@ class PictsSpectrumPlot:
 
     #for each frame of the animation the class calls this method
     def ani_update(self, frame) -> list:
-        
+        """
+        ani_update handles each frames of the animation of PICTS spectrum graphs.
+        ani_init is called by the __init__ method of the PictsSpectrumPlot class and is passed as an attribute to matplotlib's FuncAnimation class. 
+        The method is called at each frame. The first argument will be the next value in frames.
+        .............................
+        Attributes:
+        - frame:
+             The first argument will be the next value in frames
+           ......................................................
+         Return:
+         - lines:
+            a list of argument that will be the next values in frames  
+         ......................................................
+         REFERENCES:
+         For a better understanding of its use, please refer to the following documentation
+         - https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html?highlight=funcanimation#matplotlib.animation.FuncAnimation
+         ......................................................
+         ......................................................
+        """
         # if the following conditions are met, the animation is finished:
         #If I am at the last column of the dataframe and if the number of points I have plotted is greater than or equal to the number of points I had to plot
         if self.current_column == self.df.columns[-1] and self.point_index >= self.number_of_points_per_line:
@@ -125,7 +159,7 @@ class PictsSpectrumPlot:
 
         return self.lines
     
-    #save the animation in a .gif file
+  
     def save(self, output_dir):
         output_file = output_dir.joinpath("spectrum.gif")
         print(f"Saving animation {output_file}")

@@ -114,10 +114,10 @@ def main():
     normalized_transient = InputHandler.normalized_transient(data, args.dict)
     picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
 
-    #I'll need it shortly
+   
     plots = []
 
-    #I can handle different types of inputs. 
+    #I have to handle different types of inputs. 
     #I might want to start the transient animation only, or the PICTS spectrum animation, 
     #or both at the same time. These are three simple cases that I have implemented.
     interval = float(args.interval)
