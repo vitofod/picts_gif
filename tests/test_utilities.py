@@ -22,7 +22,7 @@ def configuration(configuration_path):
     with open(configuration_path, "r") as pfile:
         return json.load(pfile)
 
-#return a dataframe
+#return a dataframe 7700rows x 355 columns
 @pytest.fixture
 def input_dataframe(test_file_path):
     #path = join(dirname(__file__), 'test_data/data.tdms')
@@ -45,21 +45,68 @@ class TestUtilities:
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, "Measured Data")
         assert isinstance(df, pd.DataFrame)
         
-    def test_proper_name_of_dataframe_columns_and_index(self, input_dataframe, configuration):
+    def test_convert_tdms_file_to_datafram_return_dataframe_with_7700_rows(self, test_file_path):
         """ 
-        This test tests that transient dataframe columns and index have proper names
+        This test tests that returned dataframe from data.tdms have 7700 rows
+    
+        GIVEN: 
+            the data.tdms input file 
+        WHEN: 
+            I call the method convert_tdms_file_to_dataframe with the file as parameter
+        THEN: 
+            method returns dataframe with 7700 rows
+        """
+        df = utilities.convert_tdms_file_to_dataframe(test_file_path, "Measured Data")
+        df_rows = df.shape
+        assert    df_rows[0] == 7700
+        
+    def test_convert_tdms_file_to_datafram_return_dataframe_with_360_columns(self, test_file_path):
+        """ 
+        This test tests that returned dataframe from data.tdms have 360 columns
+    
+        GIVEN: 
+            the data.tdms input file 
+        WHEN: 
+            I call the method convert_tdms_file_to_dataframe with the file as parameter
+        THEN: 
+            method returns dataframe with 355 columns
+        """
+        df = utilities.convert_tdms_file_to_dataframe(test_file_path, "Measured Data")
+        df_cols = df.shape
+        assert    df_cols[1] == 360
+        
+    def test_proper_name_of_dataframe_columns(self, input_dataframe):
+        """ 
+        This test tests that transient dataframe columns have proper name
     
         GIVEN: 
             transient dataframe
         WHEN: 
             the method set_column_and_index_name are called
         THEN: 
-            method returns dataframe with proper columns name and index name
+            method returns dataframe with proper columns name 
         """
         # I get in the relative path of the file, regardless of where the project is installed 
         
         df = utilities.set_column_and_index_name(input_dataframe)
-        assert (df.columns.name == 'Temperature (K)' and df.index.name == 'Time (s)')
+        assert (df.columns.name == 'Temperature (K)')
+        
+    def test_proper_name_of_dataframe_index(self, input_dataframe):
+        """ 
+        This test tests that transient dataframe index have proper name
+    
+        GIVEN: 
+            transient dataframe
+        WHEN: 
+            the method set_column_and_index_name are called
+        THEN: 
+            method returns dataframe with proper index name
+        """
+        # I get in the relative path of the file, regardless of where the project is installed 
+        
+        df = utilities.set_column_and_index_name(input_dataframe)
+        assert (df.index.name == 'Time (s)')    
+        
         
     def test_set_current_value_gain_invalid_format_negative_number(self, input_dataframe):
         """ 
@@ -105,6 +152,22 @@ class TestUtilities:
         gain = 'a'
         with pytest.raises(TypeError):
             utilities.set_current_value(input_dataframe, gain)
+            
+    def test_set_current_value_gain_set_correct_current_value(self, input_dataframe):
+        """ 
+        This test tests that set_current_value method set proper current values. 
+        The max current value in data.tdms is 6.91070556640625e-11
+    
+        GIVEN: 
+            data.tdms and gain = 1e8
+        WHEN: 
+            i call set_current_value
+        THEN: 
+            maximum current value have to be 6.91070556640625e-11
+        """
+        gain = 1e8
+        df = utilities.set_current_value(input_dataframe, gain)
+        assert df.max().max() == 6.91070556640625e-11
                 
     def test_correct_zero_of_xaxis(self, input_dataframe, configuration):
         """ 
@@ -125,32 +188,26 @@ class TestUtilities:
         trigger_value = configuration['set_zero']
         #i call the method to test
         df = utilities.check_and_fix_zero_x_axis_if_trigger_value_is_corrupted(input_dataframe, trigger_value)
-        #if trigger value is corrupted
-        if trigger_value != 'auto':
-            #the index value at the minimum of current derivative must be zero
-            assert df.index[trigger_value] == pytest.approx(0, abs=1e-3)
+        assert df.index[trigger_value] == pytest.approx(0, abs=1e-3)
         
             
     def test_trim_database_work(self, input_dataframe, configuration):
         """ 
-        This test tests that trim_dataframe actually returns a dataframe with fewer columns
+        This test tests that trim_dataframe actually returns a dataframe with 217 columns
     
         GIVEN: 
-            a transient dataframe and two index value
+            data.tdms dataframe and its dictionary
         WHEN: 
             trim_database is called
         THEN: 
-            the returned dataframe must have fewer columns
+            the returned dataframe must have 217 columns
         """
             
         left_column_cut = configuration['trim_left']
         right_column_cut = configuration['trim_right']  
         df = utilities.set_column_and_index_name(input_dataframe)
-        if (configuration['trim_left'] != None and configuration['trim_right'] != None):   
-            #I call the method to test
-            new_df = utilities.trim_dataframe(df, left_column_cut, right_column_cut) 
-            
-            assert len(new_df.columns) < len(df.columns)
+        new_df = utilities.trim_dataframe(df, left_column_cut, right_column_cut) 
+        assert len(new_df.columns) == 217
 
     def test_trim_database_left_value_is_smaller_than_right_value(self, input_dataframe, configuration):
         """ 
@@ -202,10 +259,10 @@ class TestUtilities:
         n_windows = 5
         beta = 3
         t1, t2 = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
-        assert (t1[t] < t1[t+1] for t in t1)
+        assert (t1[t] < t1[t+1] for t in range(0, len(t1), 1)).all() 
         
         
-    def test_t1_values_are_smaller_than_t2_ones(self, input_dataframe, configuration):
+    def test_t1_values_are_smaller_than_t2_ones(self, configuration):
         """ 
         This test tests that foreach (t1,t2) created pairs, t1 must be smaller than t2
     
@@ -220,7 +277,7 @@ class TestUtilities:
         # generate ti values
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         #for t in t1:
-        assert (t1 < t2).any()
+        assert (t1 < t2).all()
             
     def test_t2_values_are_never_bigger_than_time_values_in_dataframe(self, input_dataframe, configuration):
         """ 
@@ -235,7 +292,7 @@ class TestUtilities:
         """
         
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        assert (t2 < input_dataframe.index.max()).any()
+        assert (t2 < input_dataframe.index.max()).all()
         
     def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_positive(self, input_dataframe, configuration):
         """ 
@@ -251,7 +308,7 @@ class TestUtilities:
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
         #for t in t1_index:
-        assert (t1_index >= 0).any() 
+        assert (t1_index >= 0).all() 
         #There is no need to create the same test for t2, as we have previously verified that t2 > t1
             
             
@@ -284,7 +341,7 @@ class TestUtilities:
         """
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         en = utilities.calculate_en(t1, t2)
-        assert ((en).any() > 0)
+        assert (en > 0).all() 
         
         
         

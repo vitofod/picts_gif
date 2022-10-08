@@ -86,7 +86,7 @@ def set_column_and_index_name(
 def set_current_value(
     data : pd.DataFrame, 
     gain : int
-    ) -> float:
+    ) -> pd.DataFrame:
     '''
     This method sets the proper value of current. 
     The current values ​​acquired by the software are those in output from an operational amplifier. 
