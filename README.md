@@ -24,44 +24,23 @@ pip install <your_path>
 ### Other OS
 I don't use Windows or Mac, so I'm sorry but I can't help you more than that. Install any [Linux](https://help.ubuntu.com/community/DualBoot) distribution, then go back to the previous paragraph.
 
-## Structure of the code
-You now have everything you need on your computer. The code can be described by the following structure:
-```
-          ______utilities.py
-         |
-input_handler.py
-         |
-         |__picts_spectrum_plot.py____
-         |                            |
-         |__----                      |
-         |__----                      |__main.py
-         |__----                      |
-         |                            |
-         |__picts_transient_plot.py___|
-
-```
-input_handler.py manages the input files. In my case the input files are [tdms](https://www.ni.com/it-it/support/documentation/supplemental/06/the-ni-tdms-file-format.html), an extension used by LabVIEW language. The purpose of the InputHandler class in input_handler.py is to open raw data from a certain format, preprocess them and return a dataframe (or more than one) of it. To increase code readability and versatility, the utilities.py library has been created, which contains a set of methods that perform specific tasks. At this point, animations can be created from the dataframe(s). Each animation is seen as a class of its own. In this repository you can find two plotting class that i have created, picts_spettrum_plot.py and pict_transient_plot.py, but the idea is that you can create complex animations as you like by joining as many of these classes as you want, following the structure of the class I created. 
-
-The picts_spettrum_plot.py file manages the animation of the PICTS spectra graphs, while picts_transient_plot.py manages the animations of the current transients as a function of temperature. If you're wondering what I'm talking about, take a look further down to the 'EXTRA' section. The main.py file is actually the "executable" of our code and it is installed as an executable script called "picts_gif_start" during the installation procedure. Through a Command Line Interface it is able to manage inputs and outputs, providing a certain variety of options. You can create single animations, create multiple animations at the same time, save the created animations. Animations are saved as gifs.
-
-Following the installation of the project, as explained in the previous paragraph, you will find a directory on your disk called 'picts_gif'. The structure of the various sub-folders is as follows (I omit the directories created automatically and those ignored):
-
-```
-picts_gif_______pict_gif__(here you can find the code)
-              |
-              |_data_(raw data in tdms or pkl format)
-              |
-              |_tests_____(tests code)
-                        |
-                        |_test_data__(data for tests and tutorial)
-```
-
-In 'picts_gif' you will find the codes described above, while in 'tests' you will find, in addition to the test_data directory, the codes for testing. In 'test_data' you will find the input data used as "test data" files accompanied by the dictionaries. In data you will find other tdms data with their dictionaries.
 
 ## Usage
 Data analysis of PICTS spectra is a long and complex job and is not the goal of this project. The data that will be used are raw data as they were acquired, but will be accompanied by a json file in which all the fundamental parameters to reconstruct the output signal are saved. Before continuing with the reading, it is strongly recommended to take a few minutes to read the 'EXTRA' paragraph where the PICTS measurement technique is broadly explained.
 The software works via a Command Line Interface (CLI).
-To get started, call the following script (from anywhere). Be sure that the pythn virtual environment is activated:
+To get started, be sure that the python virtual environment is activated. 
+To be able to run, the software must know the location of the data file and its dictionary, and some options on the type of display and on saving the gif. In particular:
+* --path (or -p): the complete path to the tdms file (file name must be included);
+* --dict (or -d): the complete path to the json file (file name must be included); 
+* --plot (or -pl): this command is used to specify which graph we want to see the animation of. The options are `transient` (we will see the current transient animation), `spectrum` (we will see the PICTS spectrum animation) and `all` (we will see both animations);
+* --interval (or -i): through this option you can adjust the speed of the animation. The input is a float and expresses the temporal distance, in milliseconds, between one frame and the next. By default it is 1 millisecond;
+* --output (or -o): the complete path to the output directory (file name must be included) where the gif will be stored. If you do not enter an output directory, the animation will not be saved;
+* --show: the animation will be displayed if and only if specifically requested;
+* --no-show: the animation will not be displayed on the screen;
+Of these commands, --path, --dict and --plot are mandatory, while the others are optional. 
+
+If at any time you need to review the instructions on using the CLI, help has been added.
+Call the following script (from anywhere).
 ```
 picts_gif_start --help
 ```
@@ -84,9 +63,9 @@ optional arguments:
   --show                To show the animation, digit: --show
   --no-show             If you don't want to see the animation digit: --no-show
 ```
-
-So, for the program to start, you must first define the location of the input files. Next, you have to choose what you want to be plotted, for example the transient, 
-the spectrum or both. If you want, you can define the animation execution speed through the 'interval' parameter, which defines the distance, in milliseconds, between one frame and another. If you want to save the animation, you must expressly define the position in which you want to save it, otherwise the file will not be saved. you can also decide whether to display the animation or not. Path directory for tdms and json file are mandatory. If you don't enter them, you will get an error back. If you don't specify what kind of animation you want to create (transient or spectrum) both will be displayed by default. The files will be saved if and only if a path is entered to save the data. Likewise, if you are not specifically asked to display animations with the '--show' parameter, they will not be displayed by default.
+To recap in simple words:
+for the program to start, you must first define the location of the input files. Next, you have to choose what you want to be plotted, for example the transient, 
+the spectrum or both. If you want, you can define the animation execution speed through the 'interval' parameter. If you want to save the animation, you must expressly define the position in which you want to save it, otherwise the file will not be saved. You can also decide whether to display the animation or not. Path directory for tdms and json file are mandatory. If you don't enter them, you will get an error back. If you don't specify what kind of animation you want to create (transient or spectrum) both will be displayed by default. The files will be saved if and only if a path is entered to save the data. Likewise, if you are not specifically asked to display animations with the '--show' parameter, they will not be displayed by default.
 
 We need to open a parenthesis. The files in this repository are very large, several tens of megabytes. My computer is old and has a hard time handling such large files, so when I try to create the animation of both the transient and the spectrum, or worse when I try to both view them and save them at the same time, I can't adjust the running speed (interval) that much and the gif shows lags. This is the main limitation to the output files that are generated. With smaller files or newer computers, this problem does not arise. In the same way it is possible to overcome this problem by subsequently making a video rendering of the gif obtained.
 
@@ -138,6 +117,40 @@ Open a shell, go to the directory that contains the project's source code, activ
 $ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot spectrum -o ./output/ --no-show
 ```
 Now go look in the directory you chose as output if you find anything.
+
+## Structure of the code
+You now have everything you need on your computer. The code can be described by the following structure:
+```
+          ______utilities.py
+         |
+input_handler.py
+         |
+         |__picts_spectrum_plot.py____
+         |                            |
+         |__----                      |
+         |__----                      |__main.py
+         |__----                      |
+         |                            |
+         |__picts_transient_plot.py___|
+
+```
+input_handler.py manages the input files. In my case the input files are [tdms](https://www.ni.com/it-it/support/documentation/supplemental/06/the-ni-tdms-file-format.html), an extension used by LabVIEW language. The purpose of the InputHandler class in input_handler.py is to open raw data from a certain format, preprocess them and return a dataframe (or more than one) of it. To increase code readability and versatility, the utilities.py library has been created, which contains a set of methods that perform specific tasks. At this point, animations can be created from the dataframe(s). Each animation is seen as a class of its own. In this repository you can find two plotting class that i have created, picts_spettrum_plot.py and pict_transient_plot.py, but the idea is that you can create complex animations as you like by joining as many of these classes as you want, following the structure of the class I created. 
+
+The picts_spettrum_plot.py file manages the animation of the PICTS spectra graphs, while picts_transient_plot.py manages the animations of the current transients as a function of temperature. If you're wondering what I'm talking about, take a look further down to the 'EXTRA' section. The main.py file is actually the "executable" of our code and it is installed as an executable script called "picts_gif_start" during the installation procedure. Through a Command Line Interface it is able to manage inputs and outputs, providing a certain variety of options. You can create single animations, create multiple animations at the same time, save the created animations. Animations are saved as gifs.
+
+Following the installation of the project, as explained in the previous paragraph, you will find a directory on your disk called 'picts_gif'. The structure of the various sub-folders is as follows (I omit the directories created automatically and those ignored):
+
+```
+picts_gif_______pict_gif__(here you can find the code)
+              |
+              |_data_(raw data in tdms or pkl format)
+              |
+              |_tests_____(tests code)
+                        |
+                        |_test_data__(data for tests and tutorial)
+```
+
+In 'picts_gif' you will find the codes described above, while in 'tests' you will find, in addition to the test_data directory, the codes for testing. In 'test_data' you will find the input data used as "test data" files accompanied by the dictionaries. In data you will find other tdms data with their dictionaries.
 
 ## Testing
 All tests were performed with the `pytest` and `coverage` libraries . The testing files all start with the name `test_*` and are located in directory `tests`.
