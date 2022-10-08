@@ -2,7 +2,7 @@ import pytest
 import matplotlib.pyplot as plt
 from os.path import dirname, join
 from picts_gif.picts_transient_plot import PictsTransientPlot
-from picts_gif.input_handler import InputHandler
+from picts_gif import input_handler 
 import numpy as np
 import pandas as pd
 from picts_gif import utilities
@@ -81,7 +81,7 @@ class TestTransientPlot:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
-        picts, gate = InputHandler.from_transient_to_PICTS_spectrum(df, dic_path)
+        picts, gate = input_handler.from_transient_to_PICTS_spectrum(df, dic_path)
         pt = PictsTransientPlot(fig, ax, dic_path, df, gate)
         returned = pt.ani_init()
          
@@ -103,7 +103,7 @@ class TestTransientPlot:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
         df = utilities.set_column_and_index_name(df)
-        picts, gate = InputHandler.from_transient_to_PICTS_spectrum(df, dic_path)
+        picts, gate = input_handler.from_transient_to_PICTS_spectrum(df, dic_path)
         pt = PictsTransientPlot(fig, ax, dic_path, df, gate)
         returned = pt.ani_update(frame=1)
          

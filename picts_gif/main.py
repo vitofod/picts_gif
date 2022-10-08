@@ -2,7 +2,7 @@ import argparse
 from enum import Enum
 from pathlib import Path
 import matplotlib.pyplot as plt
-from picts_gif.input_handler import InputHandler
+from picts_gif import input_handler 
 from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
 from picts_gif.picts_transient_plot import PictsTransientPlot
 
@@ -110,9 +110,9 @@ def main():
     args = parser.parse_args()
 
     #I manage the inputs
-    data = InputHandler.read_transients_from_tdms(args.path, args.dict)
-    normalized_transient = InputHandler.normalized_transient(data, args.dict)
-    picts, gates = InputHandler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
+    data = input_handler.read_transients_from_tdms(args.path, args.dict)
+    normalized_transient = input_handler.normalized_transient(data, args.dict)
+    picts, gates = input_handler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
 
    
     plots = []

@@ -1,6 +1,6 @@
 import pytest
 from os.path import dirname, join
-from picts_gif.input_handler import InputHandler
+from picts_gif import input_handler 
 import pandas as pd
 
 
@@ -22,7 +22,7 @@ class TestInputHandler:
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         
-        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
+        df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert isinstance(df, pd.DataFrame)
         
 
@@ -43,7 +43,7 @@ class TestInputHandler:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         #if it does not throw an exception these two lines cause the test to fail
         with pytest.raises(KeyError):
-            InputHandler.read_transients_from_tdms(test_file_path,dic_path, 'invalid_data_group_name')
+            input_handler.read_transients_from_tdms(test_file_path,dic_path, 'invalid_data_group_name')
         
     
     def test_read_transient_from_tdms_invalid_format(self):
@@ -62,7 +62,7 @@ class TestInputHandler:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
 
         with pytest.raises(Exception):
-            InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
+            input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
 
     
     def test_read_transient_from_pkl(self):
@@ -79,7 +79,7 @@ class TestInputHandler:
         #I get in the relative path of the file, regardless of where the project is installed the software
         test_file_path = join(dirname(__file__), 'test_data/test.pkl')
 
-        df = InputHandler.read_transients_from_pkl(test_file_path)
+        df = input_handler.read_transients_from_pkl(test_file_path)
         assert isinstance(df, pd.DataFrame)
 
     def test_check_correct_index_in_dataframe_from_tdms(self):
@@ -96,7 +96,7 @@ class TestInputHandler:
         """
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
+        df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Time (s)'
 
     def test_check_correct_column_name_in_dataframe_from_tdms(self):
@@ -113,7 +113,7 @@ class TestInputHandler:
         """
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
+        df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.columns.name == 'Temperature (K)'
         
     def test_normalized_transient_check_current_value(self):
@@ -133,9 +133,9 @@ class TestInputHandler:
         bad_dict_path = join(dirname(__file__), 'test_data/bad_dictionary.json')
        
         
-        df = InputHandler.read_transients_from_tdms(test_file_path, dict_path)
+        df = input_handler.read_transients_from_tdms(test_file_path, dict_path)
         with pytest.raises(ValueError):
-            InputHandler.normalized_transient(df,bad_dict_path)
+            input_handler.normalized_transient(df,bad_dict_path)
             
     def test_normalized_transient_return_a_normalized_transient_current(self):
         """ 
@@ -154,8 +154,8 @@ class TestInputHandler:
         
        
         
-        df = InputHandler.read_transients_from_tdms(test_file_path, dict_path)
-        normalized_df = InputHandler.normalized_transient(df,dict_path)        
+        df = input_handler.read_transients_from_tdms(test_file_path, dict_path)
+        normalized_df = input_handler.normalized_transient(df,dict_path)        
         assert ([normalized_df[i].index.max().max() == pytest.approx(1, abs=1e-1)] for i in normalized_df.columns)
 
     def test_transient_dataframe_columns_and_picts_datafram__index_have_same_lenght(self):
@@ -174,8 +174,8 @@ class TestInputHandler:
         """
         test_file_path = join(dirname(__file__), 'test_data/data.tdms')
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
-        df = InputHandler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
-        picts, gates = InputHandler.from_transient_to_PICTS_spectrum(df,  dic_path)
+        df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
+        picts, gates = input_handler.from_transient_to_PICTS_spectrum(df,  dic_path)
         assert len(df.columns) == len(picts.index)
         
         

@@ -2,15 +2,11 @@ import pandas as pd
 import numpy as np
 from picts_gif import utilities
 import json
-import matplotlib.pyplot as plt 
 
-class InputHandler:
-    '''
-    This static class allows the reading and manipulation of TDMS type files specific to PICTS experiments or from other input
-    '''
+
+
     
-    @staticmethod
-    def read_transients_from_tdms(
+def read_transients_from_tdms(
       path : str, 
       configuration_path : str, 
       data_group_name : str = 'Measured Data' 
@@ -76,8 +72,8 @@ class InputHandler:
 ###############################################################################################################################################################
 ###############################################################################################################################################################
 
-    @staticmethod
-    def read_transients_from_pkl(path : str) -> pd.DataFrame : 
+
+def read_transients_from_pkl(path : str) -> pd.DataFrame : 
          '''
          This method transforms a.pkl into a data frame.
          Dataframe containing current transients with time as index and temperature as columns
@@ -99,8 +95,8 @@ class InputHandler:
 ###############################################################################################################################################################
 ###############################################################################################################################################################
            
-    @staticmethod
-    def normalized_transient(
+
+def normalized_transient(
        transient : pd.DataFrame, 
        configuration_path : str
        ) -> pd.DataFrame :
@@ -160,8 +156,8 @@ class InputHandler:
 ###############################################################################################################################################################
 ###############################################################################################################################################################
 
-    @staticmethod
-    def from_transient_to_PICTS_spectrum (
+   
+def from_transient_to_PICTS_spectrum (
        transient_norm : pd.DataFrame, 
        configuration_path : str
        ):

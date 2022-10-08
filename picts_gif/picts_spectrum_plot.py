@@ -1,6 +1,6 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
 import matplotlib.pyplot as plt
-from picts_gif.input_handler import InputHandler
+from picts_gif import input_handler
 import pandas as pd
 
 #There are many ways to implement animations in matplotlib.
@@ -159,7 +159,7 @@ class PictsSpectrumPlot:
 
         return self.lines
     
-  
+    #save the animation in a .gif file
     def save(self, output_dir):
         output_file = output_dir.joinpath("spectrum.gif")
         print(f"Saving animation {output_file}")
