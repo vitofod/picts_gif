@@ -6,6 +6,7 @@ from picts_gif import input_handler
 from picts_gif.picts_spectrum_plot import PictsSpectrumPlot
 from picts_gif.picts_transient_plot import PictsTransientPlot
 
+
 #The main.py manages the user interface through a Command Line Interface (CLI)
 
 class PlotConfig(Enum):
@@ -81,12 +82,14 @@ def main():
     #If you want to save you must always specify the output directory
     parser.add_argument(
         "-o", 
-        "--output-dir", 
+        "--output-file-path", 
         type=str, 
         required=False, 
         default=None, 
-        help="The output directory where the gif is stored. If you do not enter an output directory, the animation will not be saved"
+        help="The output file path (included the name of the file and the extension .gif) where the gif is stored. If you do not enter an output file path, the animation will not be saved"
         ) 
+    
+    
     
     #to show the animation
     parser.add_argument(
@@ -106,20 +109,26 @@ def main():
     #by default the animation is not shown
     parser.set_defaults(show=False)
    
-    
+   
+        
     args = parser.parse_args()
+
+    if not args.output_file_path.endswith(".gif"):
+        print(".gif extension added")
+        args.output_file_path += ".gif"
 
     #I manage the inputs
     data = input_handler.read_transients_from_tdms(args.path, args.dict)
     normalized_transient = input_handler.normalized_transient(data, args.dict)
     picts, gates = input_handler.from_transient_to_PICTS_spectrum(normalized_transient, args.dict)
 
-   
     plots = []
-
+  
+   
     #I have to handle different types of inputs. 
     #I might want to start the transient animation only, or the PICTS spectrum animation, 
     #or both at the same time. These are three simple cases that I have implemented.
+    
     interval = float(args.interval)
     if args.plot == PlotConfig.transient:
         fig, ax = plt.subplots(1,1, figsize=(5,5))
@@ -147,10 +156,9 @@ def main():
             print("No animations will be saved.")
     #Save the plot. I manage the creation of the destination folder
     else:
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        Path(args.output_file_path).mkdir(parents=True, exist_ok=True)
         for plot in plots:
-            plot.save(output_dir)
+            plot.save(args.output_file_path)
 
     plt.close()
 

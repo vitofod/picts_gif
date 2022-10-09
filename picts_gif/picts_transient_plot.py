@@ -50,7 +50,7 @@ class PictsTransientPlot:
       ax : plt.axes, 
       conf_file_path : str, 
       transient_df : pd.DataFrame, 
-      gates_list : np.array, 
+      gates_list : np.ndarray, 
       interval : float = 1.          #interval = delay between frames in ms
       ): 
       
@@ -227,10 +227,9 @@ class PictsTransientPlot:
         #I return the updated lines
         return self.lines 
       
-    
-    def save(self, output_dir):
-      output_file = output_dir.joinpath("transient.gif")
-      print(f"Saving animation {output_file}")
-      self.func_anim.save(output_file, writer= PillowWriter(fps=30))
+
+    def save(self, output_file_path):
+        print(f"Saving animation {output_file_path}")
+        self.func_anim.save(output_file_path, writer=PillowWriter(fps=30) )
             
 

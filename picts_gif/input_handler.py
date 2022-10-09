@@ -223,7 +223,7 @@ def from_transient_to_PICTS_spectrum (
         
         #I put in order index and columns
         picts.index=picts.index.astype(float) # more convinient for data analysis
-        picts.columns = en.round(3)           # there is nothing special in the number 3
+        picts.columns = pd.Index(en.round(3))           # there is nothing special in the number 3
         picts.columns.name = 'Rate Window (Hz)'
         gates = np.array([t1, t2]).T       # I traspose it so that each row corresponds to a rate window. In fact rate window coincide with (t1 - t2)^{-1}
 

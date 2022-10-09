@@ -258,8 +258,28 @@ class TestUtilities:
         t1_shift = 0.1
         n_windows = 5
         beta = 3
-        t1, t2 = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
-        assert (t1[t] < t1[t+1] for t in range(0, len(t1), 1)).all() 
+        t1, _ = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
+        
+        assert(t1[i] < t1[i+1] for i in range(0, len(t1)-1))
+        
+    def test_t2_values_are_increasing_monotone(self):
+        """ 
+        This test tests that t2 values are increasing monotone 
+    
+        GIVEN: 
+            an arbitrary value for the starting point to calculate t2 
+        WHEN: 
+            i call the method create_t1_and_t2_values 
+        THEN: 
+            t2[i] < t2[i+1]
+        """
+        t1_min = 1
+        t1_shift = 0.1
+        n_windows = 5
+        beta = 3
+        _, t2 = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
+        
+        assert(t2[i] < t2[i+1] for i in range(0, len(t2)-1))
         
         
     def test_t1_values_are_smaller_than_t2_ones(self, configuration):

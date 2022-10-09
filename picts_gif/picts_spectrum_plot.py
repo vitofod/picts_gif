@@ -160,8 +160,7 @@ class PictsSpectrumPlot:
         return self.lines
     
     #save the animation in a .gif file
-    def save(self, output_dir):
-        output_file = output_dir.joinpath("spectrum.gif")
-        print(f"Saving animation {output_file}")
-        self.func_anim.save(output_file,writer=PillowWriter(fps=30) )
+    def save(self, output_file_path):
+        print(f"Saving animation {output_file_path}")
+        self.func_anim.save(output_file_path, writer=PillowWriter(fps=30) )
             

@@ -2,6 +2,7 @@ from nptdms import TdmsFile
 import numpy as np
 from scipy.optimize import root
 import pandas as pd
+from typing import Tuple
 
 def convert_tdms_file_to_dataframe(
     path : str, 
@@ -74,7 +75,7 @@ def set_column_and_index_name(
     # I arrange the labels of the columns. The acquisition system provides a standard name of the type 'wf_ <temperature value>'. 
     # For convenience, I want the name of the columns to coincide with the value of the temperature at which the current transient was measured.
    
-    data.columns = [float(temp.replace('wf_','')) for temp in data.columns] 
+    data.columns = pd.Index([float(temp.replace('wf_','')) for temp in data.columns]) 
     data.columns.name = 'Temperature (K)'
     data.index.name = 'Time (s)' 
      
@@ -194,13 +195,12 @@ def trim_dataframe(
 ###############################################################################################################################################################
 ###############################################################################################################################################################
 
-
 def create_t1_and_t2_values (
     t1_min : float, 
     t1_shift : float, 
     n_windows : int, 
     beta : float
-    ) -> np.array :
+    ) -> Tuple[np.ndarray, np.ndarray] :
     '''
     Creates the set of t1 and t2 values.
         .....................................................
@@ -229,7 +229,7 @@ def create_t1_and_t2_values (
     
     #t1 is chosen so that the elements of the array are in linear relationship to each other. 
     #There is no reason to think that this method is better than others. The only condition is that the created values ​​are monotonous increasing
-    t1 =  np.array([t1_min+t1_shift*i for i in range(n_windows)])      
+    t1 = np.array([t1_min+t1_shift*i for i in range(n_windows)])      
      # Create t2 based on t1 and beta
     t2 = np.array([beta*t1 for t1 in t1])
    
@@ -240,9 +240,9 @@ def create_t1_and_t2_values (
 
 def create_index_for_t1_and_t2(
     transient_norm : pd.DataFrame, 
-    t1 : np.array, 
-    t2 : np.array
-    ) -> np.array:
+    t1 : np.ndarray, 
+    t2 : np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
     '''
     This method return an enumeration for the values in t1 and t2.
         .....................................................
@@ -276,9 +276,9 @@ def create_index_for_t1_and_t2(
 ###############################################################################################################################################################
 
 def en_2gates_high_injection (
-    en : np.array, 
-    t1 : np.array, 
-    t2 : np.array
+    en : np.ndarray, 
+    t1 : np.ndarray, 
+    t2 : np.ndarray
     ):
     '''
     This methods return the relation between en and (t1, t2).
@@ -315,8 +315,8 @@ def en_2gates_high_injection (
 ###############################################################################################################################################################
 
 def calculate_en (
-    t1 : np.array, 
-    t2 : np.array
+    t1 : np.ndarray, 
+    t2 : np.ndarray
     ) -> np.ndarray:
     '''
     Returns a numpy array with en values, starting from the rate window values. 
@@ -354,9 +354,43 @@ def calculate_en (
         
         
         # I use the root function from scipy.optimize to numerically solve
+        # x is a numpy array composed by only one element
         en = np.append(en, root(en_2gates_high_injection, x0=en_guess, args=(t1, t2)).x)
     return en
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    """ 
+    en = []
+        from time import time 
+        s = time()
+        for t1, t2 in zip(t1,t2):
+            #The problem is to choose a starting point for en that is closer to our searched value than to 0, 
+            # otherwise the function will return the 0 value as result. I use the "low injection" expression for en, 
+            # see Supporting info of Pecunia et al. 2021. I chose this expression because it returns
+            # an approximate value ​​of en, the so-called 'low injection', close to the real one. 
+            en_guess = 1/(t2-t1)*(t2/t1)    
+            
+            # I use the root function from scipy.optimize to numerically solve
+            x = root(en_2gates_high_injection, x0=en_guess, args=(t1, t2)).x
+            en = np.concatenate((en, x))
+            #en = pd.concat([en, x], axis = 1)
+            print("en",en)
+
+        print("Elapsed:", time()-s)
+        return en
+    """
 
     
 
