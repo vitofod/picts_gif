@@ -96,7 +96,7 @@ class TestUtilities:
         THEN: 
             method returns dataframe with proper columns name 
         """
-        # I get in the relative path of the file, regardless of where the project is installed 
+        
         
         df = utilities.set_column_and_index_name(input_dataframe)
         assert (df.columns.name == 'Temperature (K)')
@@ -169,7 +169,7 @@ class TestUtilities:
 ##################################################
     def test_set_current_value_gain_set_correct_current_value(self, input_dataframe):
         """ 
-        This test tests that set_current_value method set proper current values. 
+        This test tests that set_current_value method set proper current values if gain = 1e8 is passed. 
         The max current value in data.tdms is 6.91070556640625e-11
     
         GIVEN: 
@@ -190,7 +190,7 @@ class TestUtilities:
         I want that zero of the index coincide with current drop. LabVIEW should do this automatically, 
         but sometimes (due to a bug) it doesn't, and needs to be setted up.
         This test tests that check_and_fix_zero_x_axis_if_trigger_value_is_corrupted
-        set proper zero index istant
+        set proper zero index istant.
     
         GIVEN: 
             a transient dataframe and a trigger value
@@ -226,27 +226,27 @@ class TestUtilities:
         assert len(new_df.columns) == 217
 
 ##################################################
-    def test_trim_database_left_value_is_smaller_than_right_value(self, input_dataframe, configuration):
+    def test_Value_Error_is_raise_if_trim_database_left_value_is_bigger_than_right_value(self, input_dataframe, configuration):
         """ 
-        This test tests that left_value_index and right_value_index have proper values
+        This test testsif a ValueError is raised if left_value_index and right_value_index are inverted
     
         GIVEN: 
             the dictionary in wich the two data are stored
         WHEN: 
-            I compare the two values
+            I pass these two value inverted
         THEN: 
-            the value of the left index must necessarily be smaller than the right value
+            a ValueError is raised
         """
         
         left_cut = configuration['trim_left']
         right_cut = configuration['trim_right']  
         df = utilities.set_column_and_index_name(input_dataframe)
-        #chiamo il metodo con i valori invertiti, così controllo che restituisca un exception
+        
         with pytest.raises(ValueError):
             utilities.trim_dataframe(df, right_cut, left_cut)
         
 ##################################################
-    def test_t1_lenght_and_t2_lenght_are_the_same(self,  configuration):
+    def test_t1_and_t2_have_the_same_lenght(self,  configuration):
         """ 
         this test verifies that as many values of t1 are created as t2
     
@@ -300,7 +300,24 @@ class TestUtilities:
         _, t2 = utilities.create_t1_and_t2_values(t1_min, t1_shift, n_windows, beta)
         
         assert(t2[i] < t2[i+1] for i in range(0, len(t2)-1))
+
+
+##################################################
+    def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_positive(self, input_dataframe, configuration):
+        """ 
+        In this test I verify that the enumeration of t1 positive number
+    
+        GIVEN: 
+            t1 values and a dataframe
+        WHEN: 
+            i call create_index_for_t1_and_t2
+        THEN: 
+            the function returned positive number values numpy arrays for t1_index
+        """
+        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
+        t1_index, _ = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
         
+        assert (t1_index >= 0).all()         
         
 ##################################################
     def test_t1_values_are_smaller_than_t2_ones(self, configuration):
@@ -319,6 +336,8 @@ class TestUtilities:
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         #for t in t1:
         assert (t1 < t2).all()
+        
+        
             
 ##################################################
     def test_t2_values_are_never_bigger_than_time_values_in_dataframe(self, input_dataframe, configuration):
@@ -333,26 +352,9 @@ class TestUtilities:
             t2 values do not exceed the time values of the dataframe
         """
         
-        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
+        _, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         assert (t2 < input_dataframe.index.max()).all()
         
-##################################################
-    def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_positive(self, input_dataframe, configuration):
-        """ 
-        In this test I verify that the enumeration of t1 positive number
-    
-        GIVEN: 
-            t1 values and a dataframe
-        WHEN: 
-            i call create_index_for_t1_and_t2
-        THEN: 
-            the function returned positive number values numpy arrays for t1_index
-        """
-        t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
-        t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
-        
-        assert (t1_index >= 0).all() 
-       
             
 ##################################################            
     def test_create_index_for_t1_and_t2_have_the_same_lenght(self, input_dataframe, configuration):
