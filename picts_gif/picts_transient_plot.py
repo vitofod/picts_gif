@@ -41,6 +41,19 @@ class PictsTransientPlot:
   
   interval       : float
                   Parameter, delay between frames in ms 
+  ................................
+  Methods:
+  
+  ani_init(self): 
+    manage the animation to start and end. When repeat = True, the method is called at the end of each animation to start it all over again.
+    In ani_init the graphical elements that will accompany all the animation and the logic that allows the interruption of the animation are initialized.
+    ani_init is a method called only internally to this class, and is essential to the functioning of the FuncAnim class.
+    
+  ani_update(self):
+    ani_update is called by the __init__ method of the PictsSpectrumPlot class and is passed as an attribute to matplotlib's FuncAnimation class. 
+    The method is called at each frame. The first argument will be the next value in frames.
+    ani_update is a method called only internally to this class, and is essential to the functioning of the FuncAnim class               
+  
   """
   
     
