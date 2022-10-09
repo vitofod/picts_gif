@@ -155,11 +155,12 @@ def main():
     if args.show:
         plt.show()
     #The destination to save the output must be entered
-    elif args.output_dir is None:
+    elif args.output_file_path is None:
             print("No animations will be saved.")
     #Save the plot. I manage the creation of the destination folder
     else:
-        Path(args.output_file_path).mkdir(parents=True, exist_ok=True)
+        path = Path(args.output_file_path).parent
+        Path(path).mkdir(parents=True, exist_ok=True)
         for plot in plots:
             plot.save(args.output_file_path)
 
