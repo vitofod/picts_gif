@@ -1,6 +1,5 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
 import matplotlib.pyplot as plt
-from picts_gif import input_handler
 import pandas as pd
 
 #There are many ways to implement animations in matplotlib.

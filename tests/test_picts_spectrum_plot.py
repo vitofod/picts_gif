@@ -11,7 +11,7 @@ from picts_gif import utilities
 
 class TestSpectrumPlot:
     
-
+##################################################
     def test_raise_type_error_if_df_is_not_pandas_dataframe(self):
         """ 
         This test tests whether an TypeError is thrown if I initialize an object of the PictsSpectrumPlot class by passing it a wrong dataframe argument
@@ -28,7 +28,8 @@ class TestSpectrumPlot:
         with pytest.raises(TypeError):
             PictsSpectrumPlot.__init__(self,fig=fig, ax=ax, df='a')
             
-            
+ 
+##################################################            
     def test_raise_type_error_if_interval_is_not_float(self):
         """ 
         This test tests whether an TypeError is thrown if I initialize an object of the PictsSpectrumPlot class by passing it a wrong interval argument
@@ -46,7 +47,8 @@ class TestSpectrumPlot:
          
         with pytest.raises(TypeError):
             PictsSpectrumPlot.__init__(self,fig=fig, ax=ax, df=df, interval='a')
-            
+
+##################################################            
     def test_ani_init_return_a_list(self):
         """ 
         This test tests that ani_init method return a list
@@ -68,7 +70,8 @@ class TestSpectrumPlot:
         returned = pt.ani_init()
          
         assert isinstance(returned, list)
-    
+
+##################################################    
     def test_ani_update_return_a_list(self):
         """ 
         This test tests that ani_update method return a list
@@ -90,7 +93,8 @@ class TestSpectrumPlot:
         returned = pt.ani_update(frame=1)
          
         assert isinstance(returned, list)
-        
+
+##################################################        
     def test_in_ani_update_stop_and_return_a_list_if_it_finished_to_plot_the_spectrum(self):
         """ 
         This test tests that ani_update method stops and return a list

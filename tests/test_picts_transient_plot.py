@@ -12,7 +12,7 @@ from picts_gif import utilities
 
 class TestTransientPlot:
     
-
+##################################################
     def test_raise_type_error_if_transient_is_not_pandas_dataframe(self):
         """ 
         This test tests whether an TypeError is thrown if I initialize an object of the PictsTransientPlot class by passing it a wrong dataframe argument
@@ -29,7 +29,8 @@ class TestTransientPlot:
          
         with pytest.raises(TypeError):
             PictsTransientPlot.__init__(self,fig=fig, ax=ax, transient_df='a', gates_list=gate)
-            
+
+##################################################            
     def test_raise_type_error_if_gates_list_is_not_numpy_ndarray(self):
         """ 
         This test tests whether an TypeError is thrown if I initialize an object of the PictsTransientPlot class by passing it a wrong numpy argument
@@ -46,7 +47,8 @@ class TestTransientPlot:
          
         with pytest.raises(TypeError):
             PictsTransientPlot.__init__(self,fig=fig, ax=ax, transient_df=df, gates_list='a')
-            
+
+##################################################            
     def test_raise_type_error_if_interval_is_not_float(self):
         """ 
         This test tests whether an TypeError is thrown if I initialize an object of the PictsTransientPlot class by passing it a wrong interval argument
@@ -64,7 +66,8 @@ class TestTransientPlot:
          
         with pytest.raises(TypeError):
             PictsTransientPlot.__init__(self,fig=fig, ax=ax, transient_df=df, gates_list=gate, interval='a')
-            
+
+##################################################            
     def test_ani_init_return_a_list(self):
         """ 
         This test tests that ani_init method return a list
@@ -86,7 +89,8 @@ class TestTransientPlot:
         returned = pt.ani_init()
          
         assert isinstance(returned, list)
-    
+
+##################################################    
     def test_ani_update_return_a_list(self):
         """ 
         This test tests that ani_update method return a list

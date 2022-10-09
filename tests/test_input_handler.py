@@ -6,7 +6,7 @@ import pandas as pd
 
 class TestInputHandler:
 
-    # Test if the file is read properly
+##################################################
     def test_read_transient_from_tdms(self):
         """ 
         This test tests that the file is read correctly and returns a dataframe
@@ -27,6 +27,7 @@ class TestInputHandler:
         
 
 
+##################################################
     def test_read_transient_from_tdms_invalid_data_group_name(self):
         """ 
         This test tests that if the data_group_name in read_transient_from_tdms
@@ -45,7 +46,8 @@ class TestInputHandler:
         with pytest.raises(KeyError):
             input_handler.read_transients_from_tdms(test_file_path,dic_path, 'invalid_data_group_name')
         
-    
+
+##################################################    
     def test_read_transient_from_tdms_invalid_format(self):
         """ 
         This test tests that if the file have uncorrect extension, method have to throw
@@ -63,7 +65,8 @@ class TestInputHandler:
 
         with pytest.raises(Exception):
             input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
-            
+
+##################################################            
     def test_read_transient_from_tdms_return_a_dataframe_with_7700_rows(self):
         """ 
         This test tests that returned dataframe from data.tdms have 7700 rows
@@ -81,7 +84,9 @@ class TestInputHandler:
 
         df_rows = df.shape
         assert  df_rows[0] == 7700
-        
+
+
+##################################################        
     def test_read_transient_from_tdms_return_a_dataframe_with_217_columns(self):
         """ 
         This test tests that returned dataframe from data.tdms have 217 columns
@@ -101,7 +106,7 @@ class TestInputHandler:
         assert  df_col[1] == 217
         
 
-    
+##################################################    
     def test_read_transient_from_pkl(self):
         """ 
         This test tests that the file .pkl is read correctly and returns a dataframe
@@ -119,6 +124,7 @@ class TestInputHandler:
         df = input_handler.read_transients_from_pkl(test_file_path)
         assert isinstance(df, pd.DataFrame)
 
+##################################################
     def test_check_correct_index_in_dataframe_from_tdms(self):
         """ 
         This test tests that returned dataframe index from read_transient_from_tdms
@@ -136,6 +142,7 @@ class TestInputHandler:
         df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Time (s)'
 
+##################################################
     def test_check_correct_column_name_in_dataframe_from_tdms(self):
         """ 
         This test tests that returned dataframe column name from read_transient_from_tdms
@@ -152,7 +159,9 @@ class TestInputHandler:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.columns.name == 'Temperature (K)'
-        
+
+
+##################################################        
     def test_check_correct_index_name_in_dataframe_from_tdms(self):
         """ 
         This test tests that returned dataframe index name from read_transient_from_tdms
@@ -169,7 +178,9 @@ class TestInputHandler:
         dic_path = join(dirname(__file__), 'test_data/dictionary.json')
         df = input_handler.read_transients_from_tdms(test_file_path, dic_path, 'Measured Data')
         assert df.index.name == 'Time (s)'    
-        
+
+
+##################################################        
     def test_normalized_transient_check_current_value(self):
         """ 
         This test tests that the method normalized_transient correctly
@@ -190,7 +201,9 @@ class TestInputHandler:
         df = input_handler.read_transients_from_tdms(test_file_path, dict_path)
         with pytest.raises(ValueError):
             input_handler.normalized_transient(df,bad_dict_path)
-            
+
+
+##################################################            
     def test_normalized_transient_return_a_normalized_transient_current_check_the_max(self):
         """ 
         This test tests that returned dataframe from normalized_transient is
@@ -211,7 +224,9 @@ class TestInputHandler:
         df = input_handler.read_transients_from_tdms(test_file_path, dict_path)
         normalized_df = input_handler.normalized_transient(df,dict_path)        
         assert (normalized_df.max() < 1.5).all() 
-        
+
+
+##################################################        
     def test_normalized_transient_return_a_normalized_transient_current_check_the_min(self):
         """ 
         This test tests that returned dataframe from normalized_transient is
@@ -231,6 +246,8 @@ class TestInputHandler:
         normalized_df = input_handler.normalized_transient(df,dict_path)        
         assert (normalized_df.min() > -0.5).all() and (normalized_df.min() < 0).all()  
 
+
+##################################################
     def test_transient_dataframe_columns_and_picts_dataframe_index_have_same_lenght(self):
         """ 
         This test tests that returned index lenght dataframe <transient_norm> 

@@ -5,6 +5,8 @@ import pandas as pd
 import json
 
 
+##################################################
+##################################################
 
  #return dictionary file path
 @pytest.fixture
@@ -29,7 +31,12 @@ def input_dataframe(test_file_path):
     df = utilities.convert_tdms_file_to_dataframe(test_file_path, 'Measured Data')
     return df
 
+##################################################
+##################################################
+
 class TestUtilities:
+    
+##################################################
       # Test if the file is read properly
     def test_convert_tdms_file_to_datafram_return_dataframe(self, test_file_path):
         """ 
@@ -44,7 +51,8 @@ class TestUtilities:
         """
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, "Measured Data")
         assert isinstance(df, pd.DataFrame)
-        
+    
+##################################################    
     def test_convert_tdms_file_to_datafram_return_dataframe_with_7700_rows(self, test_file_path):
         """ 
         This test tests that returned dataframe from data.tdms have 7700 rows
@@ -60,6 +68,7 @@ class TestUtilities:
         df_rows = df.shape
         assert    df_rows[0] == 7700
         
+##################################################    
     def test_convert_tdms_file_to_datafram_return_dataframe_with_360_columns(self, test_file_path):
         """ 
         This test tests that returned dataframe from data.tdms have 360 columns
@@ -74,7 +83,8 @@ class TestUtilities:
         df = utilities.convert_tdms_file_to_dataframe(test_file_path, "Measured Data")
         df_cols = df.shape
         assert    df_cols[1] == 360
-        
+    
+##################################################    
     def test_proper_name_of_dataframe_columns(self, input_dataframe):
         """ 
         This test tests that transient dataframe columns have proper name
@@ -90,7 +100,8 @@ class TestUtilities:
         
         df = utilities.set_column_and_index_name(input_dataframe)
         assert (df.columns.name == 'Temperature (K)')
-        
+     
+##################################################   
     def test_proper_name_of_dataframe_index(self, input_dataframe):
         """ 
         This test tests that transient dataframe index have proper name
@@ -107,7 +118,7 @@ class TestUtilities:
         df = utilities.set_column_and_index_name(input_dataframe)
         assert (df.index.name == 'Time (s)')    
         
-        
+##################################################    
     def test_set_current_value_gain_invalid_format_negative_number(self, input_dataframe):
         """ 
         This test tests that set_current_value method check gain format properly
@@ -122,7 +133,8 @@ class TestUtilities:
         gain = -5.
         with pytest.raises(ValueError):
             utilities.set_current_value(input_dataframe, gain)
-            
+ 
+##################################################           
     def test_set_current_value_gain_invalid_format_zero(self, input_dataframe):
         """ 
         This test tests that set_current_value method check gain format properly
@@ -138,6 +150,7 @@ class TestUtilities:
         with pytest.raises(ValueError):
             utilities.set_current_value(input_dataframe, gain)
             
+##################################################
     def test_set_current_value_gain_invalid_format_not_a_number(self, input_dataframe):
         """ 
         This test tests that set_current_value method check gain format properly
@@ -153,6 +166,7 @@ class TestUtilities:
         with pytest.raises(TypeError):
             utilities.set_current_value(input_dataframe, gain)
             
+##################################################
     def test_set_current_value_gain_set_correct_current_value(self, input_dataframe):
         """ 
         This test tests that set_current_value method set proper current values. 
@@ -169,6 +183,7 @@ class TestUtilities:
         df = utilities.set_current_value(input_dataframe, gain)
         assert df.max().max() == 6.91070556640625e-11
                 
+##################################################
     def test_correct_zero_of_xaxis(self, input_dataframe, configuration):
         """ 
         The index of transient dataframe are time values (data are current values as a function of time).
@@ -191,6 +206,7 @@ class TestUtilities:
         assert df.index[trigger_value] == pytest.approx(0, abs=1e-3)
         
             
+##################################################
     def test_trim_database_work(self, input_dataframe, configuration):
         """ 
         This test tests that trim_dataframe actually returns a dataframe with 217 columns
@@ -209,6 +225,7 @@ class TestUtilities:
         new_df = utilities.trim_dataframe(df, left_column_cut, right_column_cut) 
         assert len(new_df.columns) == 217
 
+##################################################
     def test_trim_database_left_value_is_smaller_than_right_value(self, input_dataframe, configuration):
         """ 
         This test tests that left_value_index and right_value_index have proper values
@@ -228,6 +245,7 @@ class TestUtilities:
         with pytest.raises(ValueError):
             utilities.trim_dataframe(df, right_cut, left_cut)
         
+##################################################
     def test_t1_lenght_and_t2_lenght_are_the_same(self,  configuration):
         """ 
         this test verifies that as many values of t1 are created as t2
@@ -243,6 +261,7 @@ class TestUtilities:
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         assert len(t1) == len(t2)   
         
+##################################################
     def test_t1_values_are_increasing_monotone(self):
         """ 
         This test tests that t1 values are increasing monotone 
@@ -262,6 +281,7 @@ class TestUtilities:
         
         assert(t1[i] < t1[i+1] for i in range(0, len(t1)-1))
         
+##################################################
     def test_t2_values_are_increasing_monotone(self):
         """ 
         This test tests that t2 values are increasing monotone 
@@ -282,6 +302,7 @@ class TestUtilities:
         assert(t2[i] < t2[i+1] for i in range(0, len(t2)-1))
         
         
+##################################################
     def test_t1_values_are_smaller_than_t2_ones(self, configuration):
         """ 
         This test tests that foreach (t1,t2) created pairs, t1 must be smaller than t2
@@ -299,6 +320,7 @@ class TestUtilities:
         #for t in t1:
         assert (t1 < t2).all()
             
+##################################################
     def test_t2_values_are_never_bigger_than_time_values_in_dataframe(self, input_dataframe, configuration):
         """ 
         This test verifies that the t2 values created do not exceed the time values of the dataframe
@@ -314,6 +336,7 @@ class TestUtilities:
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         assert (t2 < input_dataframe.index.max()).all()
         
+##################################################
     def test_create_index_for_t1_and_t2_all_values_of_t1_index_are_positive(self, input_dataframe, configuration):
         """ 
         In this test I verify that the enumeration of t1 positive number
@@ -327,11 +350,11 @@ class TestUtilities:
         """
         t1, t2 = utilities.create_t1_and_t2_values(configuration['t1_min'], configuration['t1_shift'], configuration['n_windows'], configuration['beta'])
         t1_index, t2_index = utilities.create_index_for_t1_and_t2(input_dataframe, t1, t2)   
-        #for t in t1_index:
+        
         assert (t1_index >= 0).all() 
-        #There is no need to create the same test for t2, as we have previously verified that t2 > t1
+       
             
-            
+##################################################            
     def test_create_index_for_t1_and_t2_have_the_same_lenght(self, input_dataframe, configuration):
         """ 
         In this test I verify that t1_index and t2_index have the same lenght 
@@ -348,6 +371,7 @@ class TestUtilities:
         
         assert  len(t1_index) == len(t2_index)
         
+##################################################
     def test_en_must_be_always_bigger_than_zero(self, configuration):
         """ 
         In this test I verify that en is always a positive number 
