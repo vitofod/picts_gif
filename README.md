@@ -9,7 +9,7 @@ Spectrum animation         |  Transients animation
 
 ## Installation
 ### Prerequisites
-You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The code of this project was written in Python 3.9.1.. The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem. Make sure you have a python version 3.9+, otherwise you may have trouble installing the environment.
+You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The code of this project was written in Python 3.9.1.. The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem. Make sure you have a python version 3.9+, otherwise you may have trouble installing the environment. The code has been tested with pytest and mypy.
 
 ### On Linux
 [Clone](https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories) the repository on your machine. To do this, follow these simple instructions.
@@ -38,7 +38,7 @@ To be able to run, the software must know the location of the data file and its 
 * --dict (or -d): the complete path to the json file (file name must be included); 
 * --plot (or -pl): this command is used to specify which graph we want to see the animation of. The options are `transient` (we will see the current transient animation), `spectrum` (we will see the PICTS spectrum animation) and `all` (we will see both animations);
 * --interval (or -i): through this option you can adjust the speed of the animation. The input is a float and expresses the temporal distance, in milliseconds, between one frame and the next. By default it is 1 millisecond;
-* --output (or -o): the complete path to the output directory (file name must be included) where the gif will be stored. If you do not enter an output directory, the animation will not be saved;
+* --output-file-path (or -o): the complete path to the output directory (file name with .gif extension must be included) where the gif will be stored. If you do not enter an output directory, the animation will not be saved. A check has been made regarding the correct insertion of the extension;
 * --show: the animation will be displayed if and only if specifically requested;
 * --no-show: the animation will not be displayed on the screen;
 Of these commands, --path, --dict and --plot are mandatory, while the others are optional. 
@@ -67,9 +67,9 @@ optional arguments:
   --show                To show the animation, digit: --show
   --no-show             If you don't want to see the animation digit: --no-show
 ```
-To recap in simple words:
+To recap, in simple words:
 for the program to start, you must first define the location of the input files. Next, you have to choose what you want to be plotted, for example the transient, 
-the spectrum or both. If you want, you can define the animation execution speed through the 'interval' parameter. If you want to save the animation, you must expressly define the position in which you want to save it, otherwise the file will not be saved. You can also decide whether to display the animation or not. Path directory for tdms and json file are mandatory. If you don't enter them, you will get an error back. If you don't specify what kind of animation you want to create (transient or spectrum) both will be displayed by default. The files will be saved if and only if a path is entered to save the data. Likewise, if you are not specifically asked to display animations with the '--show' parameter, they will not be displayed by default.
+the spectrum or both. If you want, you can define the animation execution speed through the 'interval' parameter. If you want to save the animation, you must expressly define the position in which you want to save it and the file name, otherwise the file will not be saved. You can also decide whether to display the animation or not. Path directory for tdms and json file are mandatory. If you don't enter them, you will get an error back. If you don't specify what kind of animation you want to create (transient or spectrum) both will be displayed by default. The files will be saved if and only if a path is entered to save the data. Likewise, if you are not specifically asked to display animations with the '--show' parameter, they will not be displayed by default.
 
 We need to open a parenthesis. The files in this repository are very large, several tens of megabytes. My computer is old and has a hard time handling such large files, so when I try to create the animation of both the transient and the spectrum, or worse when I try to both view them and save them at the same time, I can't adjust the running speed (interval) that much and the gif shows lags. This is the main limitation to the output files that are generated. With smaller files or newer computers, this problem does not arise. In the same way it is possible to overcome this problem by subsequently making a video rendering of the gif obtained.
 
@@ -84,10 +84,11 @@ Open a shell, go to the directory that contains the project's source code, activ
 ```
 $ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot transient --show
 ```
-This is what you should see
+This is what you should see 
 
-![A current transient animation](transient.gif)
-
+Transient animation           
+:-------------------------:
+![](transient.gif)   
 
 
 ### How to show PICTS spectrum animation
@@ -100,7 +101,10 @@ $ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictio
 ```
 This is what you should see
 
-![A current transient animation](spectrum.gif)
+Spectrum animation           
+:-------------------------:
+![](spectrum.gif)   
+
 
 ### How to show PICTS spectrum and transient animation
 In this tutorial we will see how to start the animation of the picts spectrum and transient at the same time. 
@@ -118,7 +122,7 @@ We will use the 'data.tdms' and 'dictionary.json' files located in the wherever_
 We just want to save the animation, we don't want it to appear on screen.
 Open a shell, go to the directory that contains the project's source code, activate the python virtual environment and execute:
 ```
-$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot spectrum -o ./output/ --no-show
+$ picts_gif_start --path tests/test_data/data.tdms --dict tests/test_data/dictionary.json --plot spectrum -o ./output/name.gif --no-show
 ```
 Now go look in the directory you chose as output if you find anything.
 
@@ -157,7 +161,7 @@ picts_gif_______pict_gif__(here you can find the code)
 In 'picts_gif' you will find the codes described above, while in 'tests' you will find, in addition to the test_data directory, the codes for testing. In 'test_data' you will find the input data used as "test data" files accompanied by the dictionaries. In data you will find other tdms data with their dictionaries.
 
 ## Testing
-All tests were performed with the `pytest` and `coverage` libraries . The testing files all start with the name `test_*` and are located in directory `tests`.
+All tests were performed with the `pytest`, `coverage` and `mypy` libraries . The testing files all start with the name `test_*` and are located in directory `tests`.
 To start tests, you have to change directory to
 ```
 wherever_you_have_saved_the_repository/picts_gif/tests
@@ -174,7 +178,7 @@ If you want to start specific part of tests, grouped by name, you can use the co
 ```
 pytest -v -k "test_name_of_the_test"
 ```
-Or you can go to the next level by run the script start_test.sh:
+You can check the coverage of the tests by run the script start_test.sh:
 ```
 ./start_test.sh
 ```
@@ -186,6 +190,10 @@ chmod +x start_test.sh
 Now, in the test folder, you will see a new directory called `cov_report_html`. Double click. To understand what you are looking at, 
 refer to the documentation for [coverage](https://coverage.readthedocs.io/en/6.4.4/) python library. 
 
+The code was also tested with `mypy`, a static type checker for Python. If you want to run mypy test, simply call the file .py with the command mypy. For example, if you want to test utilities.py with mypy, go in the proper folder and digit:
+```
+mypy utilities.py
+```
 
 ## Extra
 ### What a PICTS experiment is: a short description to better understand the code
