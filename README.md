@@ -9,7 +9,7 @@ Spectrum animation         |  Transients animation
 
 ## Installation
 ### Prerequisites
-You’ll need to know a bit of [Python](https://docs.python.org/3/tutorial/). The code of this project was written in Python 3.9.1.. The main libraries used in this project are Matplotlib, Pandas, Numpy and Scipy. You must have Anaconda or Miniconda installed on your sytem. Make sure you have a python version 3.9+, otherwise you may have trouble installing the environment. The code has been tested with pytest and mypy.
+Make sure you have a python version 3.9+, otherwise you may have trouble installing the environment. The code has been tested with pytest and mypy.
 
 ### On Linux
 [Clone](https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories) the repository on your machine. To do this, follow these simple instructions.
@@ -25,9 +25,6 @@ Install the library 'picts_gif' with
 ```
 pip install <your_path>
 ```
-### Other OS
-I don't use Windows or Mac, so I'm sorry but I can't help you more than that. Install any [Linux](https://help.ubuntu.com/community/DualBoot) distribution, then go back to the previous paragraph.
-
 
 ## Usage
 Data analysis of PICTS spectra is a long and complex job and is not the goal of this project. The data that will be used are raw data as they were acquired, but will be accompanied by a json file in which all the fundamental parameters to reconstruct the output signal are saved. Before continuing with the reading, it is strongly recommended to take a few minutes to read the 'EXTRA' paragraph where the PICTS measurement technique is broadly explained.
